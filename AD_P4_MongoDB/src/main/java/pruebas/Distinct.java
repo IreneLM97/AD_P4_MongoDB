@@ -1,4 +1,4 @@
-package ejemplos;
+package pruebas;
 
 import org.bson.Document;
 

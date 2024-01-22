@@ -1,4 +1,4 @@
-package ejemplos;
+package pruebas;
 
 import static com.mongodb.client.model.Filters.*;
 
