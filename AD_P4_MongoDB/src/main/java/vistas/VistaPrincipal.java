@@ -1,37 +1,33 @@
 package vistas;
 
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class VistaPrincipal extends Application {
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        // Crear un botón
-        Button button = new Button("Haz clic!");
-
-        // Crear un contenedor y añadir el botón
-        StackPane root = new StackPane();
-        root.getChildren().add(button);
-
-        // Crear la escena
-        Scene scene = new Scene(root, 300, 250);
-
-        // Configurar la escena en el escenario principal
-        primaryStage.setScene(scene);
-
-        // Configurar el título del escenario
-        primaryStage.setTitle("Mi primera aplicación JavaFX");
-
-        // Mostrar el escenario
-        primaryStage.show();
+	@Override
+    public void start(Stage primaryStage) {
+        try {
+        	Parent root = FXMLLoader.load(getClass().getResource("VistaPrincipal.fxml"));
+        	Scene scene = new Scene(root);
+        	primaryStage.setScene(scene);
+        	primaryStage.show();
+        	
+        }catch(IOException ex) {
+        	Logger.getLogger(VistaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public static void main(String[] args) {
-		launch(args);
+		launch();
 	}
     
 }

@@ -25,13 +25,13 @@ public class MongoDB {
 				+ props.getProperty("pass")
 				+ "@"
 				+ props.getProperty("host");
-		db = MongoClients.create(uri);		
+		db = MongoClients.create(uri);
 	}
 	
 	public static MongoClient getClient() {
 		if (db == null) {
 			new MongoDB();
-		}		
+		}
 		return db;
 	}
 }
