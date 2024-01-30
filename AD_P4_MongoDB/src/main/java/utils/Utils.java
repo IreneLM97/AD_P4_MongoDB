@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonObject;
+import java.util.Map;
+import java.util.Set;
 
 public class Utils {
 	public static String pretty(String json) {
@@ -11,4 +14,36 @@ public class Utils {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		return gson.toJson(je);
 	}
+	
+	public static String formatJson(String jsonString) {
+        // Parsear el JSON
+        JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        // Obtener las claves
+        Set<Map.Entry<String, JsonElement>> entries = jsonObject.entrySet();
+
+        // Construir la tabla formateada
+        StringBuilder formattedTable = new StringBuilder();
+
+        // Construir las cabeceras y la línea separadora
+        formattedTable.append("------------------------------------------------------------------------------------").append("\n");
+        formattedTable.append(String.format("%-5s %-35s %-5s %-35s |\n", "|", "CLAVE", "|", "VALOR"));
+        formattedTable.append("------------------------------------------------------------------------------------").append("\n");
+
+        // Construir las filas con los datos
+        for (Map.Entry<String, JsonElement> entry : entries) {
+            String key = entry.getKey();
+            if (key.equals("_id")) {
+                continue; // Ignorar el primer registro si es "_id"
+            }
+            JsonElement value = entry.getValue();
+            String valueString = value.isJsonPrimitive() ? value.getAsString() : ""; // Manejar valores no primitivos
+
+            formattedTable.append(String.format("%-5s %-35s %-5s %-35s |\n", "|", key, "|", valueString));
+        }
+        // Agregar línea final
+        formattedTable.append("-------------------------------------------------------------------------------------").append("\n");
+        return formattedTable.toString();
+    }
+
 }

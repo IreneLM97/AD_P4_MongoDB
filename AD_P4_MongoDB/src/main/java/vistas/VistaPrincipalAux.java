@@ -77,6 +77,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
 
         // Área de texto
         textArea = new JTextArea();
+        textArea.setFont(new Font("Monospaced", Font.BOLD, 14));
         textArea.setEditable(false);
         textArea.setLineWrap(true); // Configura el salto de línea automático
         textArea.setWrapStyleWord(true); // Envolver solo palabras completas

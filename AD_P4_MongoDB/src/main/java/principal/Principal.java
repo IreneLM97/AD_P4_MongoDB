@@ -50,7 +50,7 @@ public class Principal {
 //      // Imprimir los resultados
 		for (Document doc : results) {
 			System.out.println(Utils.pretty(doc.toJson()));
-			vistaPrincipal.escribirEnTextArea(Utils.pretty(doc.toJson()));
+			vistaPrincipal.escribirEnTextArea(Utils.formatJson(doc.toJson()));
 		}
 		
 		// textArea.setText("");
