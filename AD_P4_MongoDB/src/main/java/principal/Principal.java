@@ -12,31 +12,17 @@ import com.mongodb.client.MongoDatabase;
 
 import mongoDB.MongoDB;
 import repositories.products.ProductsRepository;
-import utils.Utils;
 import vistas.VistaPrincipalAux;
 
 public class Principal {
 	// Método main para probar la clase
     public static void main(String[] args) {
-        // Crear una instancia de JFrame para contener la vista principal
-        JFrame frame = new JFrame("Vista Principal");
-
-        // Crear una instancia de la ventana VistaPrincipalAux
+    	JFrame frame = new JFrame("Vista Principal");
         VistaPrincipalAux vistaPrincipal = new VistaPrincipalAux();
-
-        // Agregar la vista principal al contenido del JFrame
         frame.getContentPane().add(vistaPrincipal);
-
-        // Configurar el tamaño de la ventana
         frame.setSize(900, 600);
-
-        // Configurar la operación por defecto al cerrar la ventana
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // Centrar la ventana en la pantalla
         frame.setLocationRelativeTo(null);
-
-        // Hacer visible la ventana
         frame.setVisible(true);
         
         // Crear collection
@@ -46,12 +32,10 @@ public class Principal {
 		
 		ProductsRepository pr = new ProductsRepository();
 		List<Document> results = pr.findAll(collection);
-//      
-//      // Imprimir los resultados
-		for (Document doc : results) {
-			System.out.println(Utils.pretty(doc.toJson()));
-			vistaPrincipal.escribirEnTextArea(Utils.formatJson(doc.toJson()));
-		}
+     
+		System.out.println(results);
+		vistaPrincipal.agregarTablas(results);
+
 		
 		// textArea.setText("");
 
