@@ -50,8 +50,8 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         // Panel para los botones
         JPanel cuerpo_botones = new JPanel();
         cuerpo_botones.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        cuerpo_botones.setBackground(new Color(128, 128, 255));
-        cuerpo_botones.setPreferredSize(new Dimension(900, 50));
+        cuerpo_botones.setBackground(new Color(238, 238, 238));
+        cuerpo_botones.setPreferredSize(new Dimension(900, 30));
         cuerpo_botones.setSize(new Dimension(0, 50));
         panel.add(cuerpo_botones, BorderLayout.NORTH);
         GridBagLayout gbl_cuerpo_botones = new GridBagLayout();
@@ -89,7 +89,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         
         JPanel cuerpo_info = new JPanel();
         panel.add(cuerpo_info, BorderLayout.CENTER);
-        cuerpo_info.setLayout(new MigLayout("", "[50px][800px,grow][50px]", "[400px,grow][50px]"));
+        cuerpo_info.setLayout(new MigLayout("", "[50px][800px,grow][50px]", "[420px,grow][50px]"));
         
         // Envuelve el panel de información con un JScrollPane
         JScrollPane scrollPane = new JScrollPane();
@@ -97,10 +97,16 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
 
         // Panel para mostrar los elementos (Display)
         displayPanel = new JPanel();
-        displayPanel.setBorder(null);
-        displayPanel.setBackground(new Color(234, 221, 255));
-        scrollPane.setViewportView(displayPanel); // Establece el panel como vista del JScrollPane
-        displayPanel.setLayout(new GridLayout(0, 1, 0, 5)); // GridLayout con 1 columna y filas dinámicas
+        displayPanel.setBackground(new Color(223, 221, 255));
+        scrollPane.setViewportView(displayPanel);
+        
+     // Agregar un ComponentListener para detectar cambios en el tamaño de la ventana
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                ajustarColumnasDisplayPanel();
+            }
+        });
     }
     
     // Método para escribir en el JTextArea
@@ -109,65 +115,71 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
     }    
     
     public void agregarTablas(List<Document> documents) {
-        for (Document doc : documents) {
+        displayPanel.removeAll();
 
-            // Crear tabla para el documento
+        // Determinar el número máximo de columnas basado en el ancho de la ventana
+        int screenWidth = this.getWidth();
+        int preferredTableWidth = 300; // Ancho preferido de la tabla
+        int numColumns = Math.max(screenWidth / preferredTableWidth, 1);
+
+        GridLayout gl_displayPanel = new GridLayout(0, numColumns);
+        gl_displayPanel.setHgap(5);
+        gl_displayPanel.setVgap(5);
+        displayPanel.setLayout(gl_displayPanel);
+
+        for (Document doc : documents) {
             JTable table = createTableFromDocument(doc);
-            JScrollPane tableScrollPane = new JScrollPane(table);
-            tableScrollPane.setBackground(Color.BLACK);
-            tableScrollPane.setPreferredSize(new Dimension(200, 55));
-            tableScrollPane.setBackground(Color.green);
-            displayPanel.add(tableScrollPane, BorderLayout.CENTER);
+            JScrollPane scrollpane = new JScrollPane(table);
+            scrollpane.setMinimumSize(new Dimension(10, 10));
+            scrollpane.setPreferredSize(new Dimension(0, 300));
+            displayPanel.add(scrollpane);
         }
+
         displayPanel.revalidate();
+        ajustarColumnasDisplayPanel(); // Ajustar columnas después de agregar tablas
     }
 
     private JTable createTableFromDocument(Document doc) {
-        String[] columnNames = new String[doc.size()];
-        int index = 0;
-        for (Map.Entry<String, Object> entry : doc.entrySet()) {
-            columnNames[index++] = entry.getKey();
-        }
-
-        Object[][] data = new Object[1][doc.size()];
-        int columnIndex = 0;
-        for (Object value : doc.values()) {
-            data[0][columnIndex++] = value;
-        }
-
-        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+        String[] columnNames = {"CLAVE", "VALOR"};
+        DefaultTableModel model = new DefaultTableModel(null, columnNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;
+                return false; // Hacer que las celdas no sean editables
             }
         };
 
+        for (Map.Entry<String, Object> entry : doc.entrySet()) {
+            model.addRow(new Object[]{entry.getKey(), entry.getValue()});
+        }
+
         JTable table = new JTable(model);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Desactiva el ajuste automático de columnas
+        table.setRowHeight(30); // Ajustar la altura de las filas
 
-        // Renderizador de celdas para centrar el texto
+        // Establecer estilos para el encabezado de la tabla
+        table.getTableHeader().setFont(new Font("Calibri", Font.BOLD, 14));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setBackground(new Color(52, 0, 111));
+
+        // Establecer renderizador de celdas personalizado para centrar el contenido
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        centerRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+        table.setDefaultRenderer(Object.class, centerRenderer);
 
-        // Aplica el renderizador a todas las columnas de la tabla
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
-        // Ajusta el ancho de las columnas para adaptarse al contenido más amplio
-        for (int column = 0; column < table.getColumnCount(); column++) {
-            int width = 50; // Ancho mínimo inicial
-            for (int row = 0; row < table.getRowCount(); row++) {
-                TableCellRenderer renderer = table.getCellRenderer(row, column);
-                Component comp = table.prepareRenderer(renderer, row, column);
-                width = Math.max(comp.getPreferredSize().width + 20, width);
-            }
-            table.getColumnModel().getColumn(column).setPreferredWidth(width);
-        }
+        // Establecer estilos para las celdas de la tabla
+        table.setFont(new Font("Calibri", Font.PLAIN, 14));
+        table.setForeground(Color.BLACK);
+        table.setBackground(Color.WHITE);
+        table.setGridColor(new Color(200, 200, 200));
+        table.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
         return table;
     }
 
-
-
+    private void ajustarColumnasDisplayPanel() {
+        int screenWidth = this.getWidth();
+        int preferredTableWidth = 500; // Ancho preferido de la tabla
+        int numColumns = Math.max(screenWidth / preferredTableWidth, 1);
+        ((GridLayout) displayPanel.getLayout()).setColumns(numColumns);
+        displayPanel.revalidate();
+    }
 }

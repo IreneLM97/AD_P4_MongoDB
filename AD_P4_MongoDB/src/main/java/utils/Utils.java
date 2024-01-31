@@ -85,34 +85,3 @@ public class Utils {
 
 }
 
-//METODO NO DINAMICO PARA MOSTRAR LOS DATOS
-//	public static String formatJson(String jsonString) {
-//        // Parsear el JSON
-//        JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
-//
-//        // Obtener las claves
-//        Set<Map.Entry<String, JsonElement>> entries = jsonObject.entrySet();
-//
-//        // Construir la tabla formateada
-//        StringBuilder formattedTable = new StringBuilder();
-//
-//        // Construir las cabeceras y la línea separadora
-//        formattedTable.append("------------------------------------------------------------------------------------").append("\n");
-//        formattedTable.append(String.format("%-5s %-35s %-5s %-35s |\n", "|", "CLAVE", "|", "VALOR"));
-//        formattedTable.append("------------------------------------------------------------------------------------").append("\n");
-//
-//        // Construir las filas con los datos
-//        for (Map.Entry<String, JsonElement> entry : entries) {
-//            String key = entry.getKey();
-//            if (key.equals("_id")) {
-//                continue; // Ignorar el primer registro si es "_id"
-//            }
-//            JsonElement value = entry.getValue();
-//            String valueString = value.isJsonPrimitive() ? value.getAsString() : ""; // Manejar valores no primitivos
-//
-//            formattedTable.append(String.format("%-5s %-35s %-5s %-35s |\n", "|", key, "|", valueString));
-//        }
-//        // Agregar línea final
-//        formattedTable.append("-------------------------------------------------------------------------------------").append("\n");
-//        return formattedTable.toString();
-//    }
