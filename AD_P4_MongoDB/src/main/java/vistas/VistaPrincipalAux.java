@@ -129,15 +129,22 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
 
         for (Document doc : documents) {
             JTable table = createTableFromDocument(doc);
-            JScrollPane scrollpane = new JScrollPane(table);
-            scrollpane.setMinimumSize(new Dimension(10, 10));
-            scrollpane.setPreferredSize(new Dimension(0, 300));
-            displayPanel.add(scrollpane);
+
+            // Crear un JPanel para envolver la tabla y hacerla transparente
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setOpaque(false); // Hacer el panel completamente transparente
+            panel.setBorder(null); // Eliminar cualquier borde     
+            table.setOpaque(false);
+            panel.add(table.getTableHeader(), BorderLayout.NORTH); // Agregar el encabezado de la tabla al panel
+            panel.add(table, BorderLayout.CENTER); // Agregar la tabla al panel
+
+            displayPanel.add(panel);
         }
 
         displayPanel.revalidate();
         ajustarColumnasDisplayPanel(); // Ajustar columnas después de agregar tablas
     }
+
 
     private JTable createTableFromDocument(Document doc) {
         String[] columnNames = {"CLAVE", "VALOR"};
