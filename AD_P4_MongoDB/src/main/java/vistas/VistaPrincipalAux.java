@@ -3,8 +3,6 @@ package vistas;
 import javax.swing.*; // Importa clases base de Swing
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-
 import java.awt.*; // Importa clases para manejo de componentes gráficos
 import java.awt.event.*;
 import java.util.List;
@@ -99,6 +97,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         displayPanel = new JPanel();
         displayPanel.setBackground(new Color(223, 221, 255));
         scrollPane.setViewportView(displayPanel);
+        displayPanel.setLayout(new GridLayout(1, 0, 5, 5));
         
      // Agregar un ComponentListener para detectar cambios en el tamaño de la ventana
         this.addComponentListener(new ComponentAdapter() {
@@ -116,34 +115,71 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
     
     public void agregarTablas(List<Document> documents) {
         displayPanel.removeAll();
-
+        
+        // Configurar el layout del displayPanel como GridBagLayout
+        displayPanel.setLayout(new GridBagLayout());
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        
         // Determinar el número máximo de columnas basado en el ancho de la ventana
         int screenWidth = this.getWidth();
         int preferredTableWidth = 300; // Ancho preferido de la tabla
         int numColumns = Math.max(screenWidth / preferredTableWidth, 1);
-
-        GridLayout gl_displayPanel = new GridLayout(0, numColumns);
-        gl_displayPanel.setHgap(5);
-        gl_displayPanel.setVgap(5);
-        displayPanel.setLayout(gl_displayPanel);
-
+        int currentColumn = 0;
+        int remainingWidth = screenWidth; // Ancho restante disponible
+        
         for (Document doc : documents) {
             JTable table = createTableFromDocument(doc);
+
+            // Calcular la altura de la tabla multiplicando el número de filas por la altura de cada fila
+            int tableHeight = table.getRowCount() * table.getRowHeight();
+            
+            // Calcular gridheight basado en la altura de la tabla y la altura de fila deseada
+            int gridHeight = Math.max(tableHeight / 30, 1); // Si la tabla mide menos de 30px, gridHeight será 1
+            
+            gbc.gridheight = gridHeight;
+            gbc.gridx = currentColumn;
+            gbc.gridy = gbc.gridy;
+            gbc.weightx = 1; // Asegurar que la tabla se expanda horizontalmente
+            
+            // Verificar si hay suficiente espacio horizontal para insertar otra tabla
+            int tableWidth = table.getPreferredSize().width;
+            if (tableWidth <= remainingWidth) {
+                gbc.gridwidth = 1;
+                remainingWidth -= tableWidth + gbc.insets.left + gbc.insets.right;
+            } else {
+                // No hay suficiente espacio horizontal, mover a la siguiente fila
+                gbc.gridwidth = numColumns - currentColumn;
+                remainingWidth = screenWidth;
+                currentColumn = 0;
+                gbc.gridy += gridHeight;
+            }
 
             // Crear un JPanel para envolver la tabla y hacerla transparente
             JPanel panel = new JPanel(new BorderLayout());
             panel.setOpaque(false); // Hacer el panel completamente transparente
-            panel.setBorder(null); // Eliminar cualquier borde     
+            panel.setBorder(null); // Eliminar cualquier borde
             table.setOpaque(false);
             panel.add(table.getTableHeader(), BorderLayout.NORTH); // Agregar el encabezado de la tabla al panel
             panel.add(table, BorderLayout.CENTER); // Agregar la tabla al panel
 
-            displayPanel.add(panel);
+            displayPanel.add(panel, gbc);
+
+            // Actualizar las coordenadas de gridbag para la próxima tabla si se inserta en la misma fila
+            if (gbc.gridwidth == 1) {
+                currentColumn++;
+            }
         }
 
         displayPanel.revalidate();
-        ajustarColumnasDisplayPanel(); // Ajustar columnas después de agregar tablas
     }
+
+
 
 
     private JTable createTableFromDocument(Document doc) {
@@ -175,7 +211,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         // Establecer estilos para las celdas de la tabla
         table.setFont(new Font("Calibri", Font.PLAIN, 14));
         table.setForeground(Color.BLACK);
-        table.setBackground(Color.WHITE);
+        table.setBackground(new Color(235, 235, 235));
         table.setGridColor(new Color(200, 200, 200));
         table.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
@@ -186,7 +222,38 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         int screenWidth = this.getWidth();
         int preferredTableWidth = 500; // Ancho preferido de la tabla
         int numColumns = Math.max(screenWidth / preferredTableWidth, 1);
-        ((GridLayout) displayPanel.getLayout()).setColumns(numColumns);
+
+        // Configurar el layout del displayPanel como GridBagLayout
+        GridBagConstraints gbc = new GridBagConstraints();
+        displayPanel.setLayout(new GridBagLayout());
+        
+        // Establecer las restricciones para la distribución de las tablas
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0; // Asegurar que las tablas se expandan horizontalmente
+        
+        gbc.insets = new Insets(5, 5, 5, 5); // Establecer el margen entre las celdas
+        
+        
+
+        // Obtener todas las componentes (tablas) del displayPanel
+        Component[] components = displayPanel.getComponents();
+        
+        // Iterar sobre las componentes y establecerlas en el layout
+        for (Component component : components) {
+            displayPanel.add(component, gbc);
+            
+            // Actualizar las coordenadas de gridbag para la próxima tabla
+            gbc.gridx++;
+            if (gbc.gridx == numColumns) {
+                gbc.gridx = 0;
+                gbc.gridy++;
+            }
+        }
+        
+        // Validar el panel para que se actualice la disposición
         displayPanel.revalidate();
     }
+
 }
