@@ -11,7 +11,7 @@ public interface MongoRepository {
 
 	void deleteOneById(String id, MongoCollection<Document> collection);
 
-	void updateOneByCriteria(String id, String jsonUpdate, MongoCollection<Document> collection);
+	void replaceOneByCriteria(String id, String jsonUpdate, MongoCollection<Document> collection);
 	
 	
 
