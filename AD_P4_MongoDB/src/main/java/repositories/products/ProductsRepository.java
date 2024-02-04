@@ -34,14 +34,26 @@ public class ProductsRepository implements MongoRepository {
 	
 	@Override
 	public void replaceOneByCriteria(String id, String jsonUpdate, MongoCollection<Document> collection) {
-	    // Convertir el JSON de actualización a un Document
-	    Document updateDocument = Document.parse(jsonUpdate);
-
-	    // Crear el filtro para el ID
-	    Bson filter = Filters.eq("_id", new ObjectId(id));
-
-	    // Reemplazar completamente el documento en la base de datos con el nuevo documento de actualización
-	    collection.replaceOne(filter, updateDocument);
+		// Convertir el JSON de actualización a un Document
+		Document updateDocument = Document.parse(jsonUpdate);
+		
+		// Crear el filtro para el ID
+		Bson filter = Filters.eq("_id", new ObjectId(id));
+		
+		// Reemplazar completamente el documento en la base de datos con el nuevo documento de actualización
+		collection.replaceOne(filter, updateDocument);
 	}
+	
+	@Override
+	public void deleteAll(MongoCollection<Document> collection) {
+        collection.deleteMany(new Document());
+    }
+	
+	@Override
+	public void insertJsonFile(String jsonFilePath, MongoCollection<Document> collection) {
+	    
+	}
+
+	
 	
 }

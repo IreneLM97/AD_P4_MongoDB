@@ -12,6 +12,10 @@ public interface MongoRepository {
 	void deleteOneById(String id, MongoCollection<Document> collection);
 
 	void replaceOneByCriteria(String id, String jsonUpdate, MongoCollection<Document> collection);
+
+	void deleteAll(MongoCollection<Document> collection);
+
+	void insertJsonFile(String jsonFilePath, MongoCollection<Document> collection);
 	
 	
 

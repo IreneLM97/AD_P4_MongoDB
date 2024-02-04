@@ -58,12 +58,6 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         cuerpo_botones.setPreferredSize(new Dimension(900, 30));
         cuerpo_botones.setSize(new Dimension(0, 50));
         panel.add(cuerpo_botones, BorderLayout.NORTH);
-        GridBagLayout gbl_cuerpo_botones = new GridBagLayout();
-        gbl_cuerpo_botones.rowHeights = new int[] {12, 25, 12};
-        gbl_cuerpo_botones.columnWidths = new int[] {100, 100, 100, 100, 100, 100, 100, 100, 100};
-        gbl_cuerpo_botones.columnWeights = new double[]{};
-        gbl_cuerpo_botones.rowWeights = new double[]{};
-        cuerpo_botones.setLayout(gbl_cuerpo_botones);
 
         // Botón INSERTAR
         JButton insertar = new JButton("INSERTAR");
@@ -73,23 +67,74 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         insertar.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("BOTON INSERTAR");
+                // Abre la nueva vista de inserción
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipalAux.this);
+                VistaInsertar vistaInsertar = new VistaInsertar(VistaPrincipalAux.this);
+                JDialog dialog = new JDialog(frame, "Insertar Nuevo Elemento", Dialog.ModalityType.APPLICATION_MODAL);
+                dialog.getContentPane().add(vistaInsertar);
+                dialog.pack();
+                dialog.setLocationRelativeTo(frame);
+                dialog.setVisible(true);
             }
         });
-        GridBagConstraints gbc_insertar = new GridBagConstraints();
-        gbc_insertar.gridx = 3;
-        gbc_insertar.gridy = 1;
-        cuerpo_botones.add(insertar, gbc_insertar);
+        cuerpo_botones.setLayout(new MigLayout("", "[50px][100px][100px,grow][100px][100px][100px][100px,grow][100px][100px][50px]", "[30px]"));
+        cuerpo_botones.add(insertar, "cell 1 0,alignx center,aligny center");
 
         // Botón FILTRAR
         JButton filtrar = new JButton("FILTRAR");
         filtrar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Paste-White.png")));
         filtrar.setForeground(new Color(255, 255, 255));
         filtrar.setBackground(new Color(0, 102, 153));
-        GridBagConstraints gbc_filtrar = new GridBagConstraints();
-        gbc_filtrar.gridx = 5;
-        gbc_filtrar.gridy = 1;
-        cuerpo_botones.add(filtrar, gbc_filtrar);
+        cuerpo_botones.add(filtrar, "cell 3 0,alignx center,aligny center");
+        
+        JButton actualizar = new JButton("ACTUALIZAR");
+        actualizar.setEnabled(false);
+        actualizar.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        	}
+        });
+        actualizar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/javafx/scene/web/Copy_16x16_JFX.png")));
+        actualizar.setForeground(Color.WHITE);
+        actualizar.setBackground(new Color(0, 102, 153));
+        cuerpo_botones.add(actualizar, "cell 4 0");
+        
+        JButton eliminar = new JButton("ELIMINAR");
+        eliminar.setEnabled(false);
+        eliminar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
+        eliminar.setForeground(Color.WHITE);
+        eliminar.setBackground(new Color(0, 102, 153));
+        cuerpo_botones.add(eliminar, "cell 5 0");
+        
+        JButton insertar_bd = new JButton("INSERTAR_BD");
+        insertar_bd.setForeground(Color.WHITE);
+        insertar_bd.setBackground(new Color(0, 102, 153));
+        cuerpo_botones.add(insertar_bd, "cell 7 0");
+        insertar_bd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	String filePath = getClass().getClassLoader().getResource("BD_Test_Samples.json").getPath();
+            	ProductsRepository pr = new ProductsRepository();
+                pr.insertJsonFile(filePath, collection);
+                agregarTablas(pr.findAll(collection));
+
+            }
+        });
+        
+        JButton eliminar_bd = new JButton("ELIMINAR_BD");
+        eliminar_bd.setForeground(Color.WHITE);
+        eliminar_bd.setBackground(new Color(0, 102, 153));
+        cuerpo_botones.add(eliminar_bd, "cell 8 0");
+        eliminar_bd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	int opcion = JOptionPane.showConfirmDialog(null, "¿Estás seguro de que quieres eliminar todos los registros?", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (opcion == JOptionPane.YES_OPTION) {
+                    ProductsRepository pr = new ProductsRepository();
+                    pr.deleteAll(collection);
+                    agregarTablas(pr.findAll(collection));
+                }
+            }
+        });
 
         JPanel cuerpo_info = new JPanel();
         panel.add(cuerpo_info, BorderLayout.CENTER);

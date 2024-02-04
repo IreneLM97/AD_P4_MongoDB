@@ -1,0 +1,331 @@
+[
+      {
+        "nombre": "Manzanas",
+        "categoria": "Frutas",
+        "cantidad": 100,
+        "precio_unitario": 1.5
+      },
+      {
+        "nombre": "Lechuga",
+        "categoria": "Verduras",
+        "cantidad": 50,
+        "precio_unitario": 0.8,
+        "proveedor": "Agricultura S.A."
+      },
+      {
+        "nombre": "Carne de res",
+        "categoria": "Carnes",
+        "cantidad": 30,
+        "precio_unitario": 5.0,
+        "proveedor": "Carnicería Don Juan",
+        "fecha_vencimiento": "2024-02-28"
+      },
+      {
+        "nombre": "Cerveza",
+        "categoria": "Bebidas",
+        "cantidad": 200,
+        "precio_unitario": 2.0,
+        "marca": "Cervecería Nacional",
+        "volumen": "500ml"
+      },
+      {
+        "nombre": "Arroz",
+        "categoria": "Granos",
+        "cantidad": 80,
+        "precio_unitario": 1.2,
+        "presentacion": "1kg",
+        "proveedor": "Molino El Dorado"
+      },
+      {
+        "nombre": "Platos desechables",
+        "categoria": "Utensilios",
+        "cantidad": 500,
+        "precio_unitario": 0.1,
+        "material": "Plástico"
+      },
+      {
+        "nombre": "Salsa de tomate",
+        "categoria": "Salsas",
+        "cantidad": 40,
+        "precio_unitario": 2.5,
+        "marca": "Salsas del Valle",
+        "fecha_vencimiento": "2024-03-15"
+      },
+      {
+        "nombre": "Sal",
+        "categoria": "Condimentos",
+        "cantidad": 120,
+        "precio_unitario": 0.3,
+        "origen": "Mina Salina El Faro"
+      },
+      {
+        "nombre": "Pan",
+        "categoria": "Panadería",
+        "cantidad": 60,
+        "precio_unitario": 0.5,
+        "tipo": "Integral",
+        "proveedor": "Panadería San José"
+      },
+      {
+        "nombre": "Aceite de oliva",
+        "categoria": "Aceites",
+        "cantidad": 25,
+        "precio_unitario": 8.0,
+        "origen": "Finca Olivar de Oro",
+        "presentacion": "500ml"
+      },
+      {
+        "nombre": "Manzanas",
+        "categoria": "Frutas",
+        "cantidad": 100,
+        "precio_unitario": 1.5,
+        "proveedor": "Frutas Frescas S.A.",
+        "fecha_llegada": "2024-01-10"
+      },
+      {
+        "nombre": "Lechuga",
+        "categoria": "Verduras",
+        "cantidad": 50,
+        "precio_unitario": 0.8,
+        "proveedor": "Agricultura S.A.",
+        "fecha_llegada": "2024-01-12",
+        "fecha_vencimiento": "2024-01-18",
+        "pais_origen": "Ecuador"
+      },
+      {
+        "nombre": "Carne de res",
+        "categoria": "Carnes",
+        "cantidad": 30,
+        "precio_unitario": 5.0,
+        "proveedor": "Carnicería Don Juan",
+        "fecha_llegada": "2024-01-05",
+        "fecha_vencimiento": "2024-01-25",
+        "tipo_corte": "Lomo fino"
+      },
+      {
+        "nombre": "Cerveza",
+        "categoria": "Bebidas",
+        "cantidad": 200,
+        "precio_unitario": 2.0,
+        "marca": "Cervecería Nacional",
+        "volumen": "500ml",
+        "fecha_embotellado": "2023-12-20",
+        "tipo": "Pilsener"
+      },
+      {
+        "nombre": "Arroz",
+        "categoria": "Granos",
+        "cantidad": 80,
+        "precio_unitario": 1.2,
+        "presentacion": "1kg",
+        "proveedor": "Molino El Dorado",
+        "fecha_molienda": "2023-12-30",
+        "origen": "Argentina"
+      },
+      {
+        "nombre": "Platos desechables",
+        "categoria": "Utensilios",
+        "cantidad": 500,
+        "precio_unitario": 0.1,
+        "material": "Plástico",
+        "proveedor": "Distribuidora Industrial"
+      },
+      {
+        "nombre": "Salsa de tomate",
+        "categoria": "Salsas",
+        "cantidad": 40,
+        "precio_unitario": 2.5,
+        "marca": "Salsas del Valle",
+        "fecha_vencimiento": "2024-02-15"
+      },
+      {
+        "nombre": "Sal",
+        "categoria": "Condimentos",
+        "cantidad": 120,
+        "precio_unitario": 0.3,
+        "origen": "Mina Salina El Faro",
+        "presentacion": "500g"
+      },
+      {
+        "nombre": "Pan",
+        "categoria": "Panadería",
+        "cantidad": 60,
+        "precio_unitario": 0.5,
+        "tipo": "Integral",
+        "proveedor": "Panadería San José",
+        "fecha_elaboracion": "2024-01-15"
+      },
+      {
+        "nombre": "Aceite de oliva",
+        "categoria": "Aceites",
+        "cantidad": 25,
+        "precio_unitario": 8.0,
+        "origen": "Finca Olivar de Oro",
+        "presentacion": "500ml",
+        "tipo": "Virgen extra"
+      },
+      {
+        "nombre": "Pescado fresco",
+        "categoria": "Pescados",
+        "cantidad": 20,
+        "precio_unitario": 7.5,
+        "origen": "Mar del Norte",
+        "fecha_pesca": "2024-01-08"
+      },
+      {
+        "nombre": "Huevos",
+        "categoria": "Lácteos",
+        "cantidad": 100,
+        "precio_unitario": 0.2,
+        "proveedor": "Granja Huevos Felices",
+        "fecha_llegada": "2024-01-14"
+      },
+      {
+        "nombre": "Azúcar",
+        "categoria": "Endulzantes",
+        "cantidad": 50,
+        "precio_unitario": 0.4,
+        "origen": "Ingenio Azucarero La Dulzura",
+        "presentacion": "1kg",
+        "fecha_envasado": "2023-12-28"
+      },
+      {
+        "nombre": "Café",
+        "categoria": "Bebidas",
+        "cantidad": 40,
+        "precio_unitario": 4.0,
+        "marca": "Café Rico",
+        "tipo": "Arábica",
+        "fecha_tostado": "2024-01-10"
+      },
+      {
+        "nombre": "Queso",
+        "categoria": "Lácteos",
+        "cantidad": 30,
+        "precio_unitario": 3.0,
+        "origen": "Quesería El Buen Sabor",
+        "tipo": "Gouda"
+      },
+      {
+        "nombre": "Pasta",
+        "categoria": "Granos",
+        "cantidad": 70,
+        "precio_unitario": 1.0,
+        "presentacion": "500g",
+        "proveedor": "Pasta Artesanal La Italia"
+      },
+      {
+        "nombre": "Vinagre",
+        "categoria": "Condimentos",
+        "cantidad": 20,
+        "precio_unitario": 1.2,
+        "marca": "Vinagre del Valle",
+        "origen": "Bodega Vinícola Los Viñedos",
+        "presentacion": "750ml"
+      },
+      {
+        "nombre": "Té verde",
+        "categoria": "Bebidas",
+        "cantidad": 60,
+        "precio_unitario": 3.5,
+        "marca": "Té Verde Orgánico",
+        "tipo": "Matcha"
+      },
+      {
+        "nombre": "Mantequilla",
+        "categoria": "Lácteos",
+        "cantidad": 25,
+        "precio_unitario": 2.5,
+        "origen": "Granja Lechera El Prado",
+        "tipo": "Sin sal"
+      },
+      {
+        "nombre": "Harina",
+        "categoria": "Granos",
+        "cantidad": 90,
+        "precio_unitario": 0.8,
+        "presentacion": "2kg",
+        "proveedor": "Molino Harinero Los Andes"
+      },
+      {
+        "nombre": "Canela",
+        "categoria": "Especias",
+        "cantidad": 15,
+        "precio_unitario": 1.0,
+        "origen": "Plantación Especias del Mundo",
+        "presentacion": "100g"
+      },
+      {
+        "nombre": "Manzanas",
+        "cantidad": 100
+      },
+      {
+        "nombre": "Lechuga",
+        "cantidad": 50,
+        "precio_unitario": 0.8
+      },
+      {
+        "nombre": "Carne de res",
+        "cantidad": 30,
+        "precio_unitario": 5.0,
+        "proveedor": "Carnicería Don Juan"
+      },
+      {
+        "nombre": "Cerveza",
+        "cantidad": 200,
+        "precio_unitario": 2.0,
+        "marca": "Cervecería Nacional"
+      },
+      {
+        "nombre": "Arroz",
+        "cantidad": 80,
+        "precio_unitario": 1.2,
+        "presentacion": "1kg"
+      },
+      {
+        "nombre": "Platos desechables",
+        "cantidad": 500,
+        "precio_unitario": 0.1,
+        "material": "Plástico"
+      },
+      {
+        "nombre": "Salsa de tomate",
+        "cantidad": 40,
+        "precio_unitario": 2.5,
+        "marca": "Salsas del Valle",
+        "fecha_vencimiento": "2024-02-15"
+      },
+      {
+        "nombre": "Sal",
+        "cantidad": 120,
+        "precio_unitario": 0.3,
+        "origen": "Mina Salina El Faro",
+        "presentacion": "500g"
+      },
+      {
+        "nombre": "Pan",
+        "cantidad": 60,
+        "precio_unitario": 0.5,
+        "tipo": "Integral"
+      },
+      {
+        "nombre": "Aceite de oliva",
+        "cantidad": 25,
+        "precio_unitario": 8.0,
+        "presentacion": "500ml",
+        "tipo": "Virgen extra"
+      },
+      {
+        "nombre": "Pescado fresco",
+        "cantidad": 20,
+        "precio_unitario": 7.5,
+        "origen": "Mar del Norte",
+        "fecha_pesca": "2024-01-08"
+      },
+      {
+        "nombre": "Huevos",
+        "cantidad": 100,
+        "proveedor": "Granja Huevos Felices"
+      }
+    ]
+  
