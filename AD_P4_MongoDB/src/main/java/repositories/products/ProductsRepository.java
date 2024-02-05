@@ -33,7 +33,7 @@ public class ProductsRepository implements MongoRepository {
     }
 	
 	@Override
-	public void replaceOneByCriteria(String id, String jsonUpdate, MongoCollection<Document> collection) {
+	public void replaceOneById(String id, String jsonUpdate, MongoCollection<Document> collection) {
 		// Convertir el JSON de actualización a un Document
 		Document updateDocument = Document.parse(jsonUpdate);
 		

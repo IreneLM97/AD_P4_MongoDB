@@ -545,7 +545,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
 
         // Actualizar en la base de datos
         ProductsRepository pr = new ProductsRepository();
-        pr.replaceOneByCriteria(id, jsonUpdate, collection);
+        pr.replaceOneById(id, jsonUpdate, collection);
     }
 
 
