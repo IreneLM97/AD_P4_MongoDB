@@ -394,7 +394,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
             @Override
             public boolean isCellEditable(int row, int column) {
                 // Desactiva la edición para la primera fila
-                return !(row == 0 && column == 1);
+                return !(row == 0 && column == 1 || row == 0 && column == 0);
             }
         };
 
