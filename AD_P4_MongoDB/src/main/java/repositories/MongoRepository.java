@@ -1,5 +1,6 @@
 package repositories;
 
+import java.io.InputStream;
 import java.util.List;
 import org.bson.Document;
 
@@ -15,5 +16,8 @@ public interface MongoRepository {
 
 	void deleteAll(MongoCollection<Document> collection);
 
-	void insertJsonFile(String jsonFilePath, MongoCollection<Document> collection);
+	List<Document> findByFields(String jsonCriteria, MongoCollection<Document> collection);
+
+	void insertJSONData(InputStream ruta, MongoCollection<Document> collection);
+
 }

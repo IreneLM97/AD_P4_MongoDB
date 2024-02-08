@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*; // Importa clases para manejo de componentes gráficos
 import java.awt.event.*;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -14,11 +15,15 @@ import com.mongodb.client.MongoCollection;
 
 import net.miginfocom.swing.MigLayout; // Importa clases para manejar eventos
 import repositories.products.ProductsRepository;
+import utils.JsonStringBuilder;
 
 public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincipalAux que extiende JPanel
 	private static final long serialVersionUID = 7191141515072057188L;
 	private final MongoCollection<Document> collection;
     private JPanel displayPanel;
+    JButton eliminar;
+    JButton actualizar;
+    private boolean control = true;
 
     public VistaPrincipalAux(MongoCollection<Document> collection) {
         this.collection = collection;
@@ -85,9 +90,54 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         filtrar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Paste-White.png")));
         filtrar.setForeground(new Color(255, 255, 255));
         filtrar.setBackground(new Color(0, 102, 153));
+        filtrar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Abre la nueva vista de inserción
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipalAux.this);
+                VistaFiltro vistaFiltro = new VistaFiltro(VistaPrincipalAux.this, collection);
+                JDialog dialog = new JDialog(frame, "Filtrar elementos", Dialog.ModalityType.APPLICATION_MODAL);
+                dialog.getContentPane().add(vistaFiltro);
+                dialog.pack();
+                dialog.setLocationRelativeTo(frame);
+                dialog.setVisible(true);
+                eliminar.setEnabled(true);
+                actualizar.setEnabled(true);
+                
+             // Crear el nuevo botón
+                JButton nuevoBoton = new JButton("Eliminar Filtro");
+                nuevoBoton.setForeground(new Color(255, 255, 255));
+                nuevoBoton.setBackground(new Color(52, 0, 111));
+                nuevoBoton.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                    	control = true;
+                    	
+                        eliminar.setEnabled(false);
+                        actualizar.setEnabled(false);
+                        
+                        ProductsRepository pr = new ProductsRepository();
+                        agregarTablas(pr.findAll(collection));
+                        
+                     // Eliminar el botón
+                        cuerpo_botones.remove(nuevoBoton);
+                        cuerpo_botones.revalidate();
+                        cuerpo_botones.repaint();
+                    }
+                });
+                if (control) {
+                	cuerpo_botones.add(nuevoBoton, "cell 3 0,alignx center,aligny center"); // Ajusta las celdas según tu diseño
+                	control = false;
+                }
+                
+                // Revalidar el panel de botones
+                cuerpo_botones.revalidate();
+                cuerpo_botones.repaint();
+            }
+        });
         cuerpo_botones.add(filtrar, "cell 3 0,alignx center,aligny center");
         
-        JButton actualizar = new JButton("ACTUALIZAR");
+        actualizar = new JButton("ACTUALIZAR");
         actualizar.setEnabled(false);
         actualizar.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
@@ -98,7 +148,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         actualizar.setBackground(new Color(0, 102, 153));
         cuerpo_botones.add(actualizar, "cell 4 0");
         
-        JButton eliminar = new JButton("ELIMINAR");
+        eliminar = new JButton("ELIMINAR");
         eliminar.setEnabled(false);
         eliminar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
         eliminar.setForeground(Color.WHITE);
@@ -112,11 +162,11 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         insertar_bd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	String filePath = getClass().getClassLoader().getResource("BD_Test_Samples.json").getPath();
-            	ProductsRepository pr = new ProductsRepository();
-                pr.insertJsonFile(filePath, collection);
+                InputStream filePath = getClass().getClassLoader().getResourceAsStream("BD_Test_Samples.json");
+                ProductsRepository pr = new ProductsRepository();
+                System.out.println(filePath);
+                pr.insertJSONData(filePath, collection);
                 agregarTablas(pr.findAll(collection));
-
             }
         });
         
@@ -509,30 +559,24 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         // Obtener el ID del nombre de la tabla
         String id = table.getName();
         // Construir el JSON de actualización a partir de los datos de la tabla
-        StringBuilder jsonUpdateBuilder = new StringBuilder("{");
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        JsonStringBuilder jsonUpdateBuilder = new JsonStringBuilder();
+        Object columnValueObject;
 
         int emptyFieldsCount = 0; // Contador para campos vacíos
 
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
         for (int i = 1; i < model.getRowCount(); i++) { // Comenzar desde la segunda fila
             String columnName = (String) model.getValueAt(i, 0);
-            Object columnValueObject = model.getValueAt(i, 1);
-            String columnValue = (columnValueObject != null) ? columnValueObject.toString() : "";
-
+            columnValueObject = model.getValueAt(i, 1);
+            
             // Omitir la fila si la columna clave o valor están a null o cadena vacía
-            if (columnName == null || columnName.isEmpty() || columnValue == null || columnValue.isEmpty()) {
+            if (columnName == null || columnName.isEmpty() || columnValueObject == null) {
                 emptyFieldsCount++; // Incrementar el contador de campos vacíos
             } else {
-                jsonUpdateBuilder.append("\"").append(columnName).append("\": \"").append(columnValue).append("\", ");
+                // Agregar clave y valor al JSON
+                jsonUpdateBuilder.append(columnName, columnValueObject);
             }
         }
-
-        // Eliminar la coma adicional al final y cerrar el JSON
-        if (jsonUpdateBuilder.length() > 1) { // Verificar si se agregaron campos al JSON
-            jsonUpdateBuilder.delete(jsonUpdateBuilder.length() - 2, jsonUpdateBuilder.length());
-        }
-        jsonUpdateBuilder.append("}");
-        String jsonUpdate = jsonUpdateBuilder.toString();
 
         // Si se encontraron campos vacíos, preguntar al usuario si desea continuar
         if (emptyFieldsCount > 0) {
@@ -545,8 +589,9 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
 
         // Actualizar en la base de datos
         ProductsRepository pr = new ProductsRepository();
-        pr.replaceOneById(id, jsonUpdate, collection);
+        pr.replaceOneById(id, jsonUpdateBuilder.build(), collection);
     }
+
 
 
 

@@ -1,11 +1,17 @@
 package repositories.products;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -48,12 +54,44 @@ public class ProductsRepository implements MongoRepository {
 	public void deleteAll(MongoCollection<Document> collection) {
         collection.deleteMany(new Document());
     }
-	
-	@Override
-	public void insertJsonFile(String jsonFilePath, MongoCollection<Document> collection) {
-	    
-	}
 
-	
+	@Override
+		public List<Document> findByFields(String jsonCriteria, MongoCollection<Document> collection) {
+			Document criteria = Document.parse(jsonCriteria);
+			Bson filter = new Document(criteria);
+			List<Document> results = new ArrayList<>();
+			try (MongoCursor<Document> cursor = collection.find(filter).iterator()) {
+				while (cursor.hasNext()) {
+					results.add(cursor.next());
+				}
+			}
+			return results;
+		}
+	@Override
+	public void insertJSONData(InputStream inputStream, MongoCollection<Document> collection) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            StringBuilder jsonString = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonString.append(line);
+            }
+
+            // Convertir el JSON a un JSONArray
+            JSONArray jsonArray = new JSONArray(jsonString.toString());
+
+            // Insertar cada documento en la colección
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                Document document = Document.parse(jsonObject.toString());
+                collection.insertOne(document);
+            }
+
+            System.out.println("Datos insertados correctamente en la colección " + collection);
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo JSON: " + e.getMessage());
+        }
+    }
+
+
 	
 }
