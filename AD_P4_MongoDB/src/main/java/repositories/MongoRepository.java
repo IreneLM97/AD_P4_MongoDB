@@ -20,4 +20,6 @@ public interface MongoRepository {
 
 	void insertJSONData(InputStream ruta, MongoCollection<Document> collection);
 
+	void deleteByCriteria(String jsonCriteria, MongoCollection<Document> collection);
+
 }

@@ -24,10 +24,16 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
     JButton eliminar;
     JButton actualizar;
     private boolean control = true;
+    private String filtroJson = null;
+    JButton nuevoBoton;
 
     public VistaPrincipalAux(MongoCollection<Document> collection) {
         this.collection = collection;
         initializeUI();
+    }
+    
+    public void setFiltroJson(String filtroJson) {
+    	this.filtroJson = filtroJson;
     }
     
     private void initializeUI() {
@@ -105,7 +111,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
                 actualizar.setEnabled(true);
                 
                 // Crear el nuevo botón
-                JButton nuevoBoton = new JButton("Eliminar Filtro");
+                nuevoBoton = new JButton("Eliminar Filtro");
                 nuevoBoton.setForeground(new Color(255, 255, 255));
                 nuevoBoton.setBackground(new Color(52, 0, 111));
                 nuevoBoton.addMouseListener(new MouseAdapter() {
@@ -118,6 +124,8 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
                         
                         ProductsRepository pr = new ProductsRepository();
                         agregarTablas(pr.findAll(collection));
+                        
+                        filtroJson = null;
                         
                      // Eliminar el botón
                         cuerpo_botones.remove(nuevoBoton);
@@ -154,6 +162,32 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         eliminar.setForeground(Color.WHITE);
         eliminar.setBackground(new Color(0, 102, 153));
         cuerpo_botones.add(eliminar, "cell 5 0");
+        eliminar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	// Mostrar un cuadro de diálogo de confirmación
+                int opcion = JOptionPane.showConfirmDialog(null, "¿Estás seguro de que quieres eliminar los datos del filtro?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+                
+                // Verificar la opción seleccionada por el usuario
+                if (opcion == JOptionPane.YES_OPTION) {
+                	control = true;
+                	
+                    
+                    ProductsRepository pr = new ProductsRepository();
+                    pr.deleteByCriteria(filtroJson, collection);
+                    agregarTablas(pr.findAll(collection));
+                    
+                    eliminar.setEnabled(false);
+                    actualizar.setEnabled(false);
+                    filtroJson = null;
+                    
+                    // Eliminar el botón nuevoBoton
+                    cuerpo_botones.remove(nuevoBoton);
+                    cuerpo_botones.revalidate();
+                    cuerpo_botones.repaint();
+                }
+            }
+        });
         
         JButton insertar_bd = new JButton("INSERTAR_BD");
         insertar_bd.setForeground(Color.WHITE);

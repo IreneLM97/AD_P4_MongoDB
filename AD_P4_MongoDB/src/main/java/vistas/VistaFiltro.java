@@ -137,6 +137,7 @@ public class VistaFiltro extends JPanel {
             System.out.println(resultados.toString());
             System.out.println(pr.findByFields(resultados, collection));
             vistaPrincipalAux.agregarTablas(pr.findByFields(resultados, collection));
+            vistaPrincipalAux.setFiltroJson(resultados);
 			
 			((JButton)e.getSource()).getRootPane().getParent().setVisible(false);
         });

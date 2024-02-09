@@ -94,6 +94,16 @@ public class ProductsRepository implements MongoRepository {
             System.err.println("Error al leer el archivo JSON: " + e.getMessage());
         }
     }
+	
+	@Override
+    public void deleteByCriteria(String jsonCriteria, MongoCollection<Document> collection) {
+		Document criteria = Document.parse(jsonCriteria);
+		
+		Bson filter = new Document(criteria);
+
+        // Eliminar documentos que cumplan el criterio
+        collection.deleteMany(filter);
+    }
 
 	private Document sortDocumentKeysAlphabetically(Document document) {
 	    TreeMap<String, Object> sortedMap = new TreeMap<>(document);
