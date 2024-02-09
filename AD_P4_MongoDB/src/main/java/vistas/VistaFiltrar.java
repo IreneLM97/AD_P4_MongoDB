@@ -24,8 +24,7 @@ public class VistaFiltrar extends JPanel {
     
     // Declaramos variables como atributos para poder acceder a ellas desde toda la clase
     private JPanel contenedor; 
-    private JComboBox<String> comboBox;
-    private JTextField textField;
+    private JPanel panelCheckboxes;
     private JPanel cuerpo;
     
     @SuppressWarnings("unused")
@@ -40,15 +39,30 @@ public class VistaFiltrar extends JPanel {
     private void initializeUI() {
         setLayout(new BorderLayout());
         
+        // Crear contenedor
         contenedor = new JPanel();
         contenedor.setBorder(new LineBorder(new Color(238, 238, 238), 25));
         contenedor.setPreferredSize(new Dimension(700, 600));
         add(contenedor, BorderLayout.CENTER);
         contenedor.setLayout(new BorderLayout(0, 0));
         
+        // Crear panel para los checkboxes y las etiquetas
+        JPanel panelSuperior = new JPanel(new BorderLayout());
+        contenedor.add(panelSuperior, BorderLayout.NORTH);
+        
+        // Crear JLabel encima de los checkboxes
+        JLabel labelCampos = new JLabel("¿QUE CAMPOS QUIERES MOSTRAR?");
+        labelCampos.setHorizontalAlignment(SwingConstants.CENTER);
+        panelSuperior.add(labelCampos, BorderLayout.NORTH);
+        
+        // Crear panel para los checkboxes
+        panelCheckboxes = new JPanel(new GridLayout(0, 4)); // Organiza los checkboxes en 4 columnas
+        cargarClavesCheckBox(panelCheckboxes);
+        panelSuperior.add(panelCheckboxes, BorderLayout.CENTER);
+        
         JPanel cabecera = new JPanel();
-        contenedor.add(cabecera, BorderLayout.NORTH);
         cabecera.setLayout(new MigLayout("", "[183px,grow][100px,grow][183px,grow]", "[25px]"));
+        panelSuperior.add(cabecera, BorderLayout.SOUTH);
         
         JLabel claveLabel = new JLabel("CLAVE");
         claveLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -64,33 +78,14 @@ public class VistaFiltrar extends JPanel {
         
         // Envuelve el panel cuerpo dentro de un JScrollPane para habilitar el desplazamiento vertical
         JScrollPane scrollPane = new JScrollPane();
-        contenedor.add(scrollPane, BorderLayout.CENTER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); // Ajusta la política de la barra de desplazamiento vertical
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        contenedor.add(scrollPane, BorderLayout.CENTER);
         
         cuerpo = new JPanel();
         cuerpo.setBackground(new Color(0, 128, 128));
         cuerpo.setLayout(new BoxLayout(cuerpo, BoxLayout.Y_AXIS)); // Utiliza BoxLayout con orientación vertical
-        scrollPane.setViewportView(cuerpo); // Establece el cuerpo como vista del scroll pane
-
-        JPanel panel = new JPanel();
-        panel.setName("filtroPanel"); // Etiqueta el panel como "filtroPanel"
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-        cuerpo.add(panel);
-        panel.setLayout(new MigLayout("", "[183px,grow][100px,grow][183px,grow]", "[50px]"));
-        
-        // Aquí creamos un JComboBox estándar
-        comboBox = new JComboBox<>();
-        cargarClaves(comboBox);
-        panel.add(comboBox, "cell 0 0,growx");
-        
-        JComboBox<String> comboBox_1 = new JComboBox<String>();
-        comboBox_1.setModel(new DefaultComboBoxModel<String>(new String[] {"==", "!=", "<=", ">=", "<", ">"}));
-        panel.add(comboBox_1, "cell 1 0,growx");
-        
-        textField = new JTextField();
-        panel.add(textField, "cell 2 0,growx");
-        textField.setColumns(10);
+        scrollPane.setViewportView(cuerpo);
         
         JPanel panel_1 = new JPanel();
         cuerpo.add(panel_1);
@@ -98,10 +93,10 @@ public class VistaFiltrar extends JPanel {
         
         JButton agregarFiltro = new JButton("Añadir Filtro");
         agregarFiltro.addActionListener(e -> {
-            JPanel nuevoPanel = crearNuevoPanel();
+            JPanel nuevoFiltro = crearNuevoFiltro();
             int componentCount = cuerpo.getComponentCount(); // Obtener la cantidad de componentes en el cuerpo
             int insertIndex = Math.max(0, componentCount - 1); // Obtener el índice de inserción antes del último panel
-            cuerpo.add(nuevoPanel, insertIndex); // Agregar el nuevo panel antes del último panel
+            cuerpo.add(nuevoFiltro, insertIndex); // Agregar el nuevo panel antes del último panel
             panelCounter++; // Incrementar el contador de paneles
             revalidate(); // Actualizar el diseño del panel para reflejar los cambios
             repaint(); // Volver a pintar el panel
@@ -127,27 +122,67 @@ public class VistaFiltrar extends JPanel {
         
         JButton filtrarBtn = new JButton("Filtrar");
         filtrarBtn.addActionListener(e -> {
-        	ProductsRepository pr = new ProductsRepository();
-        	String resultados = filtrar().toString();
-            vistaPrincipal.agregarTablas(pr.findByFields(resultados, collection));
+        	obtenerCamposSeleccionados(); // Recoger los campos seleccionados
+            ProductsRepository pr = new ProductsRepository();
+            String resultados = obtenerJsonFiltros().toString(); 
+            
+            // Verificar si resultados está vacío
+            if (resultados.equals("{}")) {
+                // Si no hay filtros, llamar a findAllWithProjections
+                List<Document> allDocuments = pr.findAllWithProjections(camposSeleccionados, collection);
+                vistaPrincipal.agregarTablas(allDocuments);
+            } else {
+                // Si hay filtros, aplicar proyecciones utilizando findByFieldsWithProjection
+                List<Document> filteredDocuments = pr.findByFieldsWithProjection(resultados, camposSeleccionados, collection);
+                vistaPrincipal.agregarTablas(filteredDocuments);
+            }
+
+            // Aplicar proyecciones utilizando el método findByFieldsWithProjection
+            List<Document> filteredDocuments = pr.findByFieldsWithProjection(resultados, camposSeleccionados, collection);
+            vistaPrincipal.agregarTablas(filteredDocuments);
             vistaPrincipal.setFiltroJson(resultados);
 			
 			((JButton)e.getSource()).getRootPane().getParent().setVisible(false);
         });
         panel_1.add(filtrarBtn, "cell 5 0");
     }
+    
+    private void cargarClavesCheckBox(JPanel panelCheckboxes) {
+        List<String> campos = obtenerClavesDesdeBaseDeDatos();
 
-    private void cargarClaves(JComboBox<String> comboBox) {
+        for (String campo : campos) {
+            JCheckBox checkBox = new JCheckBox(campo);
+            panelCheckboxes.add(checkBox);
+        }
+    }
+
+    private void cargarClavesComboBox(JComboBox<String> comboBox) {
         // Lógica para obtener las claves de la base de datos y cargarlas en el JComboBox
         List<String> claves = obtenerClavesDesdeBaseDeDatos();
         for (String clave : claves) {
             comboBox.addItem(clave);
         }
     }
+    
+    // Lista para almacenar los campos seleccionados
+    private List<String> camposSeleccionados = new ArrayList<>();
+
+    // Método para recoger los campos seleccionados de los checkboxes
+    private void obtenerCamposSeleccionados() {
+        camposSeleccionados.clear(); // Limpiar la lista para evitar duplicados
+        for (Component component : panelCheckboxes.getComponents()) {
+            if (component instanceof JCheckBox) {
+                JCheckBox checkBox = (JCheckBox) component;
+                if (checkBox.isSelected()) {
+                    camposSeleccionados.add(checkBox.getText());
+                }
+            }
+        }
+    }
 
     private List<String> obtenerClavesDesdeBaseDeDatos() {
         ProductsRepository pr = new ProductsRepository();
-        List<Document> documentos = pr.findAll(collection); // Esto supone que "collection" es tu colección MongoDB
+        List<Document> documentos = pr.findAll(collection); 
         Set<String> clavesUnicas = new HashSet<>();
         for (Document documento : documentos) {
             clavesUnicas.addAll(documento.keySet());
@@ -171,14 +206,14 @@ public class VistaFiltrar extends JPanel {
         repaint(); // Vuelve a pintar el panel
     }
     
-    private JPanel crearNuevoPanel() {
+    private JPanel crearNuevoFiltro() {
         JPanel nuevoPanel = new JPanel();
         nuevoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         nuevoPanel.setName("filtroPanel"); // Etiqueta el panel como "filtroPanel"
         nuevoPanel.setLayout(new MigLayout("", "[183px,grow][100px,grow][183px,grow]", "[50px]"));
 
         JComboBox<String> nuevoComboBox = new JComboBox<>();
-        cargarClaves(nuevoComboBox);
+        cargarClavesComboBox(nuevoComboBox);
         nuevoPanel.add(nuevoComboBox, "cell 0 0,growx");
 
         JComboBox<String> nuevoComboBox_1 = new JComboBox<String>();
@@ -193,14 +228,19 @@ public class VistaFiltrar extends JPanel {
     }
 
     
-    private String filtrar() {
+    private String obtenerJsonFiltros() {
+    	// Documento con los filtros de búsqueda
         Document filtro = new Document();
+        
+        // Variable para verificar si se han agregado filtros
+        boolean hayFiltros = false; 
 
         // Iterar sobre los paneles dentro del cuerpo
         for (Component component : cuerpo.getComponents()) {
             if (component instanceof JPanel) {
                 JPanel panel = (JPanel) component;
                 if (panel.getName() != null && panel.getName().equals("filtroPanel")) {
+                	hayFiltros = true;
                     @SuppressWarnings("unchecked")
 					JComboBox<String> claveComboBox = (JComboBox<String>) panel.getComponent(0);
                     String clave = (String) claveComboBox.getSelectedItem();
@@ -241,6 +281,11 @@ public class VistaFiltrar extends JPanel {
                     filtro.put(clave, new Document(operador, obtenerValorConTipo(valor)));
                 }
             }
+        }
+        
+        // Si no se han agregado filtros, devolver un JSON vacío
+        if (!hayFiltros) {
+            return "{}";
         }
         
         // Convertir el documento filtro a una cadena JSON válida

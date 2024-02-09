@@ -124,6 +124,9 @@ public class VistaInsertar extends JPanel {
         panel.add(cuerpo_guardar, "cell 0 2,growx,aligny top");
 
         JButton btnGuardar = new JButton("Guardar");
+        btnGuardar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/Iconos/Icono_Confirmacion.png")));
+        btnGuardar.setForeground(new Color(255, 255, 255));
+        btnGuardar.setBackground(new Color(90, 153, 73));
         btnGuardar.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent e) {

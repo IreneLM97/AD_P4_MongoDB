@@ -23,9 +23,8 @@ public class VistaPrincipal extends JPanel {
 	
     private JPanel displayPanel;
     JButton eliminarBtn;
-    JButton actualizarBtn;
     JButton filtrarBtn;
-    private boolean control = true;
+    
     private String filtroJson = null;
     JButton eliminarFiltroBtn;
 
@@ -90,7 +89,7 @@ public class VistaPrincipal extends JPanel {
                 dialog.setVisible(true);
             }
         });
-        cuerpo_botones.setLayout(new MigLayout("", "[50px][100px][100px,grow][100px][100px][100px][100px,grow][100px][100px][50px]", "[30px]"));
+        cuerpo_botones.setLayout(new MigLayout("", "[50px][100px][100px,grow][100px][100px][100px,grow][100px][100px][50px]", "[30px]"));
         cuerpo_botones.add(insertar, "cell 1 0,alignx center,aligny center");
 
         // Botón FILTRAR
@@ -101,62 +100,50 @@ public class VistaPrincipal extends JPanel {
         filtrarBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // Abre la nueva vista de inserción
-                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipal.this);
-                VistaFiltrar vistaFiltrar = new VistaFiltrar(VistaPrincipal.this, collection);
-                JDialog dialog = new JDialog(frame, "Filtrar elementos", Dialog.ModalityType.APPLICATION_MODAL);
-                dialog.getContentPane().add(vistaFiltrar);
-                dialog.pack();
-                dialog.setLocationRelativeTo(frame);
-                dialog.setVisible(true);
-                eliminarBtn.setEnabled(true);
-                actualizarBtn.setEnabled(true);
+            	if (filtrarBtn.isEnabled()) {
+	                // Abre la nueva vista de inserción
+	                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipal.this);
+	                VistaFiltrar vistaFiltrar = new VistaFiltrar(VistaPrincipal.this, collection);
+	                JDialog dialog = new JDialog(frame, "Filtrar elementos", Dialog.ModalityType.APPLICATION_MODAL);
+	                dialog.getContentPane().add(vistaFiltrar);
+	                dialog.pack();
+	                dialog.setLocationRelativeTo(frame);
+	                dialog.setVisible(true);
+	                eliminarBtn.setEnabled(true);
+	                filtrarBtn.setEnabled(false);
+	                
+	                // Crear el nuevo botón
+	                eliminarFiltroBtn = new JButton("Eliminar Filtro");
+	                eliminarFiltroBtn.setForeground(new Color(255, 255, 255));
+	                eliminarFiltroBtn.setBackground(new Color(52, 0, 111));
+	                eliminarFiltroBtn.addMouseListener(new MouseAdapter() {
+	                    @Override
+	                    public void mouseClicked(MouseEvent e) {	                    	
+	                        eliminarBtn.setEnabled(false);
+	                        filtrarBtn.setEnabled(true);
+	                        
+	                        ProductsRepository pr = new ProductsRepository();
+	                        agregarTablas(pr.findAll(collection));
+	                        
+	                        filtroJson = null;
+	                        
+	                        // Eliminar el botón
+	                        cuerpo_botones.remove(eliminarFiltroBtn);
+	                        cuerpo_botones.revalidate();
+	                        cuerpo_botones.repaint();
+	                    }
+	                });
+	                if (!filtrarBtn.isEnabled()) {
+	                	cuerpo_botones.add(eliminarFiltroBtn, "cell 3 0,alignx center,aligny center"); // Ajusta las celdas según tu diseño
+	                }
                 
-                // Crear el nuevo botón
-                eliminarFiltroBtn = new JButton("Eliminar Filtro");
-                eliminarFiltroBtn.setForeground(new Color(255, 255, 255));
-                eliminarFiltroBtn.setBackground(new Color(52, 0, 111));
-                eliminarFiltroBtn.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                    	control = true;
-                    	
-                        eliminarBtn.setEnabled(false);
-                        actualizarBtn.setEnabled(false);
-                        
-                        ProductsRepository pr = new ProductsRepository();
-                        agregarTablas(pr.findAll(collection));
-                        
-                        filtroJson = null;
-                        
-                        // Eliminar el botón
-                        cuerpo_botones.remove(eliminarFiltroBtn);
-                        cuerpo_botones.revalidate();
-                        cuerpo_botones.repaint();
-                    }
-                });
-                if (control) {
-                	cuerpo_botones.add(eliminarFiltroBtn, "cell 3 0,alignx center,aligny center"); // Ajusta las celdas según tu diseño
-                	control = false;
-                }
-                
-                // Revalidar el panel de botones
-                cuerpo_botones.revalidate();
-                cuerpo_botones.repaint();
+	                // Revalidar el panel de botones
+	                cuerpo_botones.revalidate();
+	                cuerpo_botones.repaint();
+            	}
             }
         });
         cuerpo_botones.add(filtrarBtn, "cell 3 0,alignx center,aligny center");
-        
-        actualizarBtn = new JButton("ACTUALIZAR");
-        actualizarBtn.setEnabled(false);
-        actualizarBtn.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        actualizarBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/javafx/scene/web/Copy_16x16_JFX.png")));
-        actualizarBtn.setForeground(Color.WHITE);
-        actualizarBtn.setBackground(new Color(0, 102, 153));
-        cuerpo_botones.add(actualizarBtn, "cell 4 0");
         
         eliminarBtn = new JButton("ELIMINAR");
         eliminarBtn.setEnabled(false);
@@ -171,15 +158,12 @@ public class VistaPrincipal extends JPanel {
                 
                 // Verificar la opción seleccionada por el usuario
                 if (opcion == JOptionPane.YES_OPTION) {
-                	control = true;
-                	
-                    
                     ProductsRepository pr = new ProductsRepository();
-                    pr.deleteByCriteria(filtroJson, collection);
+                    pr.deleteManyByCriteria(filtroJson, collection);
                     agregarTablas(pr.findAll(collection));
                     
                     eliminarBtn.setEnabled(false);
-                    actualizarBtn.setEnabled(false);
+                    filtrarBtn.setEnabled(true);
                     filtroJson = null;
                     
                     // Eliminar el botón nuevoBoton
@@ -189,12 +173,12 @@ public class VistaPrincipal extends JPanel {
                 }
             }
         });
-        cuerpo_botones.add(eliminarBtn, "cell 5 0");
+        cuerpo_botones.add(eliminarBtn, "cell 4 0");
         
         JButton insertar_bd = new JButton("INSERTAR_BD");
         insertar_bd.setForeground(Color.WHITE);
         insertar_bd.setBackground(new Color(0, 102, 153));
-        cuerpo_botones.add(insertar_bd, "cell 7 0");
+        cuerpo_botones.add(insertar_bd, "cell 6 0");
         insertar_bd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -211,7 +195,7 @@ public class VistaPrincipal extends JPanel {
         JButton eliminar_bd = new JButton("ELIMINAR_BD");
         eliminar_bd.setForeground(Color.WHITE);
         eliminar_bd.setBackground(new Color(195, 72, 46));
-        cuerpo_botones.add(eliminar_bd, "cell 8 0");
+        cuerpo_botones.add(eliminar_bd, "cell 7 0");
         eliminar_bd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
 
 import repositories.MongoRepository;
 
@@ -36,6 +37,55 @@ public class ProductsRepository implements MongoRepository {
 	}
 	
 	@Override
+	public List<Document> findAllWithProjections(List<String> fieldsToProject, MongoCollection<Document> collection) {
+	    // Crear una lista de proyecciones para los campos especificados por el usuario
+	    List<Bson> projections = new ArrayList<>();
+	    for (String field : fieldsToProject) {
+	        projections.add(Projections.include(field));
+	    }
+
+	    // Combinar todas las proyecciones en una sola usando la clase Projections
+	    Bson combinedProjection = Projections.fields(projections);
+
+	    // Obtener todos los documentos de la colección con las proyecciones especificadas
+	    List<Document> results = new ArrayList<>();
+	    try (MongoCursor<Document> cursor = collection.find().projection(combinedProjection).iterator()) {
+	        while (cursor.hasNext()) {
+	            results.add(cursor.next());
+	        }
+	    }
+	    return results;
+	}
+	
+	@Override
+	public List<Document> findByFieldsWithProjection(String jsonCriteria, List<String> fieldsToProject, MongoCollection<Document> collection) {
+	    Document criteria = Document.parse(jsonCriteria);
+	    Bson filter = new Document(criteria);
+
+	    // Crear una lista de proyecciones para los campos especificados por el usuario
+	    List<Bson> projections = new ArrayList<>();
+	    for (String field : fieldsToProject) {
+	        projections.add(Projections.include(field));
+	    }
+
+	    // Combinar todas las proyecciones en una sola usando la clase Projections
+	    Bson combinedProjection = Projections.fields(projections);
+
+	    List<Document> results = new ArrayList<>();
+	    try (MongoCursor<Document> cursor = collection.find(filter).projection(combinedProjection).iterator()) {
+	        while (cursor.hasNext()) {
+	            results.add(cursor.next());
+	        }
+	    }
+	    return results;
+	}
+	
+	@Override
+	public void deleteAll(MongoCollection<Document> collection) {
+        collection.deleteMany(new Document());
+    }
+	
+	@Override
 	public void insertOne(String json, MongoCollection<Document> collection) {
 		Document doc = Document.parse(json);
 		collection.insertOne(doc);
@@ -45,6 +95,16 @@ public class ProductsRepository implements MongoRepository {
 	public void deleteOneById(String id, MongoCollection<Document> collection) {
         // Eliminar el documento que coincida con el ID proporcionado
 		collection.deleteOne(new Document("_id", new ObjectId(id)));
+    }
+	
+	@Override
+    public void deleteManyByCriteria(String jsonCriteria, MongoCollection<Document> collection) {
+		Document criteria = Document.parse(jsonCriteria);
+		
+		Bson filter = new Document(criteria);
+
+        // Eliminar documentos que cumplan el criterio
+        collection.deleteMany(filter);
     }
 	
 	@Override
@@ -59,23 +119,7 @@ public class ProductsRepository implements MongoRepository {
 		collection.replaceOne(filter, updateDocument);
 	}
 	
-	@Override
-	public void deleteAll(MongoCollection<Document> collection) {
-        collection.deleteMany(new Document());
-    }
-
-	@Override
-		public List<Document> findByFields(String jsonCriteria, MongoCollection<Document> collection) {
-			Document criteria = Document.parse(jsonCriteria);
-			Bson filter = new Document(criteria);
-			List<Document> results = new ArrayList<>();
-			try (MongoCursor<Document> cursor = collection.find(filter).iterator()) {
-				while (cursor.hasNext()) {
-					results.add(cursor.next());
-				}
-			}
-			return results;
-		}
+	
 	@Override
 	public void insertJsonData(InputStream inputStream, MongoCollection<Document> collection) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -97,16 +141,6 @@ public class ProductsRepository implements MongoRepository {
         } catch (IOException e) {
             System.err.println("Error al leer el archivo JSON: " + e.getMessage());
         }
-    }
-	
-	@Override
-    public void deleteByCriteria(String jsonCriteria, MongoCollection<Document> collection) {
-		Document criteria = Document.parse(jsonCriteria);
-		
-		Bson filter = new Document(criteria);
-
-        // Eliminar documentos que cumplan el criterio
-        collection.deleteMany(filter);
     }
 
 	private Document sortDocumentKeysAlphabetically(Document document) {
