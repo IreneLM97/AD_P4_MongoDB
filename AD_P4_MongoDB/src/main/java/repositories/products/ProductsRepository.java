@@ -34,6 +34,12 @@ public class ProductsRepository implements MongoRepository {
 		}
 		return results;
 	}
+	
+	@Override
+	public void insertOne(String json, MongoCollection<Document> collection) {
+		Document doc = Document.parse(json);
+		collection.insertOne(doc);
+	}
 
 	@Override
 	public void deleteOneById(String id, MongoCollection<Document> collection) {

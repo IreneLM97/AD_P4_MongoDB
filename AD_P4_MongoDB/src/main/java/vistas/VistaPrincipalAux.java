@@ -80,7 +80,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
             public void mouseClicked(MouseEvent e) {
                 // Abre la nueva vista de inserción
                 JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipalAux.this);
-                VistaInsertar vistaInsertar = new VistaInsertar();
+                VistaInsertar vistaInsertar = new VistaInsertar(VistaPrincipalAux.this, collection);
                 JDialog dialog = new JDialog(frame, "Insertar Nuevo Elemento", Dialog.ModalityType.APPLICATION_MODAL);
                 dialog.getContentPane().add(vistaInsertar);
                 dialog.pack();
