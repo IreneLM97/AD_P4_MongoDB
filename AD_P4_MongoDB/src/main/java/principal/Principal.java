@@ -36,6 +36,5 @@ public class Principal {
      
 		System.out.println(results);
 		vistaPrincipal.agregarTablas(results);
-
     }
 }

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -26,12 +27,14 @@ public class ProductsRepository implements MongoRepository {
 		List<Document> results = new ArrayList<>();
 		try (MongoCursor<Document> cursor = collection.find().iterator()) {
 			while (cursor.hasNext()) {
-				results.add(cursor.next());
+				Document doc = cursor.next();
+	            Document sortedDoc = sortDocumentKeysAlphabetically(doc);
+	            results.add(sortedDoc);
 			}
 		}
 		return results;
 	}
-	
+
 	@Override
 	public void deleteOneById(String id, MongoCollection<Document> collection) {
         // Eliminar el documento que coincida con el ID proporcionado
@@ -92,6 +95,10 @@ public class ProductsRepository implements MongoRepository {
         }
     }
 
-
+	private Document sortDocumentKeysAlphabetically(Document document) {
+	    TreeMap<String, Object> sortedMap = new TreeMap<>(document);
+	    Document sortedDocument = new Document(sortedMap);
+	    return sortedDocument;
+	}
 	
 }

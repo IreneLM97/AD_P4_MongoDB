@@ -19,7 +19,6 @@ import org.bson.json.JsonWriterSettings;
 
 public class VistaFiltro extends JPanel {
 	private static final long serialVersionUID = 1L;
-    @SuppressWarnings("unused")
 	private VistaPrincipalAux vistaPrincipalAux;
     private final MongoCollection<Document> collection;
     private JPanel contenedor; // Definimos el panel como atributo para poder acceder a él desde otros métodos

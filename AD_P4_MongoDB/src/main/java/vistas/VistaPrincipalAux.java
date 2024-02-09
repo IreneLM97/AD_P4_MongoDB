@@ -74,7 +74,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
             public void mouseClicked(MouseEvent e) {
                 // Abre la nueva vista de inserción
                 JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipalAux.this);
-                VistaInsertar vistaInsertar = new VistaInsertar(VistaPrincipalAux.this);
+                VistaInsertar vistaInsertar = new VistaInsertar();
                 JDialog dialog = new JDialog(frame, "Insertar Nuevo Elemento", Dialog.ModalityType.APPLICATION_MODAL);
                 dialog.getContentPane().add(vistaInsertar);
                 dialog.pack();
@@ -104,7 +104,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
                 eliminar.setEnabled(true);
                 actualizar.setEnabled(true);
                 
-             // Crear el nuevo botón
+                // Crear el nuevo botón
                 JButton nuevoBoton = new JButton("Eliminar Filtro");
                 nuevoBoton.setForeground(new Color(255, 255, 255));
                 nuevoBoton.setBackground(new Color(52, 0, 111));
