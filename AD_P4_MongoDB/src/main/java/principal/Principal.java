@@ -18,6 +18,7 @@ public class Principal {
 	private static MongoClient mongoClient = MongoDB.getClient();
 	private static MongoDatabase database = mongoClient.getDatabase("inventorydb");
 	static MongoCollection<Document> collection = database.getCollection("products");
+	
 	// Método main para probar la clase
     public static void main(String[] args) {
     	JFrame frame = new JFrame("Vista Principal");
@@ -26,15 +27,11 @@ public class Principal {
         frame.setSize(900, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-        
-        // Crear collection
-        
+        frame.setVisible(true);        
 		
 		ProductsRepository pr = new ProductsRepository();
 		List<Document> results = pr.findAll(collection);
-     
-		System.out.println(results);
+
 		vistaPrincipal.agregarTablas(results);
     }
 }

@@ -20,7 +20,7 @@ public interface MongoRepository {
 
 	List<Document> findByFields(String jsonCriteria, MongoCollection<Document> collection);
 
-	void insertJSONData(InputStream ruta, MongoCollection<Document> collection);
+	void insertJsonData(InputStream ruta, MongoCollection<Document> collection);
 
 	void deleteByCriteria(String jsonCriteria, MongoCollection<Document> collection);
 

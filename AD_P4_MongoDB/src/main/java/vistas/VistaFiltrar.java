@@ -21,14 +21,16 @@ public class VistaFiltrar extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private VistaPrincipal vistaPrincipal;
     private final MongoCollection<Document> collection;
-    private JPanel contenedor; // Definimos el panel como atributo para poder acceder a él desde otros métodos
+    
+    // Declaramos variables como atributos para poder acceder a ellas desde toda la clase
+    private JPanel contenedor; 
     private JComboBox<String> comboBox;
     private JTextField textField;
+    private JPanel cuerpo;
+    
     @SuppressWarnings("unused")
 	private int panelCounter = 1; // Contador para identificar los paneles agregados
-    private JPanel cuerpo;
-
-
+   
     public VistaFiltrar(VistaPrincipal vistaPrincipal, MongoCollection<Document> collection) {
         this.vistaPrincipal = vistaPrincipal;
 		this.collection = collection;
@@ -40,7 +42,6 @@ public class VistaFiltrar extends JPanel {
         
         contenedor = new JPanel();
         contenedor.setBorder(new LineBorder(new Color(238, 238, 238), 25));
-        contenedor.setBackground(new Color(0, 128, 128));
         contenedor.setPreferredSize(new Dimension(700, 600));
         add(contenedor, BorderLayout.CENTER);
         contenedor.setLayout(new BorderLayout(0, 0));
@@ -124,18 +125,16 @@ public class VistaFiltrar extends JPanel {
 
         panel_1.add(eliminarFiltro, "cell 3 0");
         
-        JButton filtrar = new JButton("Filtrar");
-        filtrar.addActionListener(e -> {
+        JButton filtrarBtn = new JButton("Filtrar");
+        filtrarBtn.addActionListener(e -> {
         	ProductsRepository pr = new ProductsRepository();
         	String resultados = filtrar().toString();
-            System.out.println(resultados.toString());
-            System.out.println(pr.findByFields(resultados, collection));
             vistaPrincipal.agregarTablas(pr.findByFields(resultados, collection));
             vistaPrincipal.setFiltroJson(resultados);
 			
 			((JButton)e.getSource()).getRootPane().getParent().setVisible(false);
         });
-        panel_1.add(filtrar, "cell 5 0");
+        panel_1.add(filtrarBtn, "cell 5 0");
     }
 
     private void cargarClaves(JComboBox<String> comboBox) {
@@ -161,8 +160,8 @@ public class VistaFiltrar extends JPanel {
     // Método para cerrar esta vista
     @SuppressWarnings("unused")
 	private void cerrar() {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        frame.dispose();
+    	Window window = SwingUtilities.getWindowAncestor(this);
+	    window.dispose();
     }
 
     // Método para agregar un nuevo componente al panel

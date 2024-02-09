@@ -17,15 +17,17 @@ import net.miginfocom.swing.MigLayout; // Importa clases para manejar eventos
 import repositories.products.ProductsRepository;
 import utils.JsonStringBuilder;
 
-public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalAux que extiende JPanel
+public class VistaPrincipal extends JPanel {
 	private static final long serialVersionUID = 7191141515072057188L;
 	private final MongoCollection<Document> collection;
+	
     private JPanel displayPanel;
-    JButton eliminar;
-    JButton actualizar;
+    JButton eliminarBtn;
+    JButton actualizarBtn;
+    JButton filtrarBtn;
     private boolean control = true;
     private String filtroJson = null;
-    JButton nuevoBoton;
+    JButton eliminarFiltroBtn;
 
     public VistaPrincipal(MongoCollection<Document> collection) {
         this.collection = collection;
@@ -66,7 +68,7 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
         JPanel cuerpo_botones = new JPanel();
         cuerpo_botones.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
         cuerpo_botones.setBackground(new Color(238, 238, 238));
-        cuerpo_botones.setPreferredSize(new Dimension(900, 30));
+        cuerpo_botones.setPreferredSize(new Dimension(900, 40));
         cuerpo_botones.setSize(new Dimension(0, 50));
         panel.add(cuerpo_botones, BorderLayout.NORTH);
 
@@ -92,11 +94,11 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
         cuerpo_botones.add(insertar, "cell 1 0,alignx center,aligny center");
 
         // Botón FILTRAR
-        JButton filtrar = new JButton("FILTRAR");
-        filtrar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Paste-White.png")));
-        filtrar.setForeground(new Color(255, 255, 255));
-        filtrar.setBackground(new Color(0, 102, 153));
-        filtrar.addMouseListener(new MouseAdapter() {
+        filtrarBtn = new JButton("FILTRAR");
+        filtrarBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Paste-White.png")));
+        filtrarBtn.setForeground(new Color(255, 255, 255));
+        filtrarBtn.setBackground(new Color(0, 102, 153));
+        filtrarBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // Abre la nueva vista de inserción
@@ -107,34 +109,34 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
                 dialog.pack();
                 dialog.setLocationRelativeTo(frame);
                 dialog.setVisible(true);
-                eliminar.setEnabled(true);
-                actualizar.setEnabled(true);
+                eliminarBtn.setEnabled(true);
+                actualizarBtn.setEnabled(true);
                 
                 // Crear el nuevo botón
-                nuevoBoton = new JButton("Eliminar Filtro");
-                nuevoBoton.setForeground(new Color(255, 255, 255));
-                nuevoBoton.setBackground(new Color(52, 0, 111));
-                nuevoBoton.addMouseListener(new MouseAdapter() {
+                eliminarFiltroBtn = new JButton("Eliminar Filtro");
+                eliminarFiltroBtn.setForeground(new Color(255, 255, 255));
+                eliminarFiltroBtn.setBackground(new Color(52, 0, 111));
+                eliminarFiltroBtn.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                     	control = true;
                     	
-                        eliminar.setEnabled(false);
-                        actualizar.setEnabled(false);
+                        eliminarBtn.setEnabled(false);
+                        actualizarBtn.setEnabled(false);
                         
                         ProductsRepository pr = new ProductsRepository();
                         agregarTablas(pr.findAll(collection));
                         
                         filtroJson = null;
                         
-                     // Eliminar el botón
-                        cuerpo_botones.remove(nuevoBoton);
+                        // Eliminar el botón
+                        cuerpo_botones.remove(eliminarFiltroBtn);
                         cuerpo_botones.revalidate();
                         cuerpo_botones.repaint();
                     }
                 });
                 if (control) {
-                	cuerpo_botones.add(nuevoBoton, "cell 3 0,alignx center,aligny center"); // Ajusta las celdas según tu diseño
+                	cuerpo_botones.add(eliminarFiltroBtn, "cell 3 0,alignx center,aligny center"); // Ajusta las celdas según tu diseño
                 	control = false;
                 }
                 
@@ -143,26 +145,25 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
                 cuerpo_botones.repaint();
             }
         });
-        cuerpo_botones.add(filtrar, "cell 3 0,alignx center,aligny center");
+        cuerpo_botones.add(filtrarBtn, "cell 3 0,alignx center,aligny center");
         
-        actualizar = new JButton("ACTUALIZAR");
-        actualizar.setEnabled(false);
-        actualizar.addActionListener(new ActionListener() {
+        actualizarBtn = new JButton("ACTUALIZAR");
+        actualizarBtn.setEnabled(false);
+        actualizarBtn.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         	}
         });
-        actualizar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/javafx/scene/web/Copy_16x16_JFX.png")));
-        actualizar.setForeground(Color.WHITE);
-        actualizar.setBackground(new Color(0, 102, 153));
-        cuerpo_botones.add(actualizar, "cell 4 0");
+        actualizarBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/javafx/scene/web/Copy_16x16_JFX.png")));
+        actualizarBtn.setForeground(Color.WHITE);
+        actualizarBtn.setBackground(new Color(0, 102, 153));
+        cuerpo_botones.add(actualizarBtn, "cell 4 0");
         
-        eliminar = new JButton("ELIMINAR");
-        eliminar.setEnabled(false);
-        eliminar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
-        eliminar.setForeground(Color.WHITE);
-        eliminar.setBackground(new Color(0, 102, 153));
-        cuerpo_botones.add(eliminar, "cell 5 0");
-        eliminar.addActionListener(new ActionListener() {
+        eliminarBtn = new JButton("ELIMINAR");
+        eliminarBtn.setEnabled(false);
+        eliminarBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
+        eliminarBtn.setForeground(Color.WHITE);
+        eliminarBtn.setBackground(new Color(195, 72, 46));
+        eliminarBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
             	// Mostrar un cuadro de diálogo de confirmación
@@ -177,17 +178,18 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
                     pr.deleteByCriteria(filtroJson, collection);
                     agregarTablas(pr.findAll(collection));
                     
-                    eliminar.setEnabled(false);
-                    actualizar.setEnabled(false);
+                    eliminarBtn.setEnabled(false);
+                    actualizarBtn.setEnabled(false);
                     filtroJson = null;
                     
                     // Eliminar el botón nuevoBoton
-                    cuerpo_botones.remove(nuevoBoton);
+                    cuerpo_botones.remove(eliminarFiltroBtn);
                     cuerpo_botones.revalidate();
                     cuerpo_botones.repaint();
                 }
             }
         });
+        cuerpo_botones.add(eliminarBtn, "cell 5 0");
         
         JButton insertar_bd = new JButton("INSERTAR_BD");
         insertar_bd.setForeground(Color.WHITE);
@@ -198,15 +200,17 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
             public void actionPerformed(ActionEvent e) {
                 InputStream filePath = getClass().getClassLoader().getResourceAsStream("BD_Test_Samples.json");
                 ProductsRepository pr = new ProductsRepository();
-                System.out.println(filePath);
-                pr.insertJSONData(filePath, collection);
+                pr.insertJsonData(filePath, collection);
                 agregarTablas(pr.findAll(collection));
+                
+                // Mensaje informativo
+                JOptionPane.showMessageDialog(null, "Base de datos insertada correctamente.", "Mensaje informativo", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         
         JButton eliminar_bd = new JButton("ELIMINAR_BD");
         eliminar_bd.setForeground(Color.WHITE);
-        eliminar_bd.setBackground(new Color(0, 102, 153));
+        eliminar_bd.setBackground(new Color(195, 72, 46));
         cuerpo_botones.add(eliminar_bd, "cell 8 0");
         eliminar_bd.addActionListener(new ActionListener() {
             @Override
@@ -348,7 +352,7 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
                         });
                         JPanel btnTablePanel = getPanel2ByName(confirmBtn.getName());
                         
-                     // Agregar dos botones adicionales al panel2
+                        // Agregar dos botones adicionales al panel2
                         JButton deleteRowBtn = new JButton("");
                         deleteRowBtn.setBackground(new Color(201, 30, 18));
                         deleteRowBtn.setPreferredSize(new Dimension(30, 30));
@@ -368,7 +372,7 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
                         			}
                         		} else {
                         			// Si no hay filas seleccionadas, mostrar un mensaje al usuario
-                        			JOptionPane.showMessageDialog(null, "No se han seleccionado filas para eliminar.", "Por favor seleccione almenos una fila", JOptionPane.WARNING_MESSAGE);
+                        			JOptionPane.showMessageDialog(null, "Selecciona al menos una fila para eliminar.", "Filas no seleccionadas.", JOptionPane.WARNING_MESSAGE);
                         		}
                         	}
                         });
@@ -376,7 +380,7 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
                         JButton insertRowBtn = new JButton("");
                         insertRowBtn.setBackground(new Color(14, 161, 41));
                         insertRowBtn.setPreferredSize(new Dimension(30, 30));
-                        insertRowBtn.setIcon(new ImageIcon(getClass().getResource("/Iconos/Icono_Añadir.png")));
+                        insertRowBtn.setIcon(new ImageIcon(getClass().getResource("/Iconos/Icono_Agregar.png")));
                         insertRowBtn.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -394,8 +398,12 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
                         		    // Seleccionar la nueva fila para edición
                         		    table.setRowSelectionInterval(lastSelectedRow + 1, lastSelectedRow + 1);
                         		} else {
-                        			// Si no hay ninguna fila seleccionada, mostrar un mensaje de aviso
-                                    JOptionPane.showMessageDialog(null, "No se han seleccionado filas para Insertar.", "Por favor seleccione almenos una fila", JOptionPane.WARNING_MESSAGE);
+                        			// Si no hay ninguna fila seleccionada, insertar la nueva fila al final
+                                    int rowCount = model.getRowCount();
+                                    model.addRow(new Object[]{"", ""});
+
+                                    // Seleccionar la nueva fila para edición
+                                    table.setRowSelectionInterval(rowCount, rowCount);
                         		}
                         	}
                         });
@@ -405,7 +413,7 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
 
                         displayPanel.revalidate();
                     } else {
-                        System.out.println("TABLA NO ENCONTRADA");
+                    	JOptionPane.showMessageDialog(null, "No se ha encontrado la tabla.", "Error", JOptionPane.WARNING_MESSAGE);
                     }
                 }
             });
@@ -566,7 +574,7 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
                 }
             }
         }
-        System.out.println("TABLA NO ENCONTRADA");
+        JOptionPane.showMessageDialog(null, "No se ha encontrado la tabla.", "Error", JOptionPane.WARNING_MESSAGE);
         return null; // Si no se encuentra la tabla
     }
 
@@ -600,15 +608,15 @@ public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalA
 
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         for (int i = 1; i < model.getRowCount(); i++) { // Comenzar desde la segunda fila
-            String columnName = (String) model.getValueAt(i, 0);
+            String clave = (String) model.getValueAt(i, 0);
             columnValueObject = model.getValueAt(i, 1);
             
             // Omitir la fila si la columna clave o valor están a null o cadena vacía
-            if (columnName == null || columnName.isEmpty() || columnValueObject == null) {
+            if (clave == null || clave.isEmpty() || columnValueObject == null) {
                 emptyFieldsCount++; // Incrementar el contador de campos vacíos
             } else {
                 // Agregar clave y valor al JSON
-                jsonUpdateBuilder.append(columnName, columnValueObject);
+                jsonUpdateBuilder.append(clave, columnValueObject);
             }
         }
 

@@ -77,7 +77,7 @@ public class ProductsRepository implements MongoRepository {
 			return results;
 		}
 	@Override
-	public void insertJSONData(InputStream inputStream, MongoCollection<Document> collection) {
+	public void insertJsonData(InputStream inputStream, MongoCollection<Document> collection) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             StringBuilder jsonString = new StringBuilder();
             String line;
@@ -94,8 +94,6 @@ public class ProductsRepository implements MongoRepository {
                 Document document = Document.parse(jsonObject.toString());
                 collection.insertOne(document);
             }
-
-            System.out.println("Datos insertados correctamente en la colección " + collection);
         } catch (IOException e) {
             System.err.println("Error al leer el archivo JSON: " + e.getMessage());
         }
