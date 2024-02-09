@@ -12,7 +12,7 @@ import com.mongodb.client.MongoDatabase;
 
 import mongoDB.MongoDB;
 import repositories.products.ProductsRepository;
-import vistas.VistaPrincipalAux;
+import vistas.VistaPrincipal;
 
 public class Principal {
 	private static MongoClient mongoClient = MongoDB.getClient();
@@ -21,7 +21,7 @@ public class Principal {
 	// Método main para probar la clase
     public static void main(String[] args) {
     	JFrame frame = new JFrame("Vista Principal");
-        VistaPrincipalAux vistaPrincipal = new VistaPrincipalAux(collection);
+        VistaPrincipal vistaPrincipal = new VistaPrincipal(collection);
         frame.getContentPane().add(vistaPrincipal);
         frame.setSize(900, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

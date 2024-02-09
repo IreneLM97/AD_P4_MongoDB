@@ -17,7 +17,7 @@ import org.bson.json.JsonWriterSettings;
 
 public class VistaInsertar extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private VistaPrincipalAux vistaPrincipalAux;
+	private VistaPrincipal vistaPrincipal;
     private final MongoCollection<Document> collection;
     
     // Definimos el panel como atributo para poder acceder a él desde otros métodos
@@ -27,8 +27,8 @@ public class VistaInsertar extends JPanel {
     private JTextField textFieldClave;
 
 
-    public VistaInsertar(VistaPrincipalAux vistaPrincipalAux, MongoCollection<Document> collection) {
-        this.vistaPrincipalAux = vistaPrincipalAux;
+    public VistaInsertar(VistaPrincipal vistaPrincipal, MongoCollection<Document> collection) {
+        this.vistaPrincipal = vistaPrincipal;
 		this.collection = collection;
         initializeUI();
     }
@@ -39,7 +39,7 @@ public class VistaInsertar extends JPanel {
         contenedor = new JPanel();
         contenedor.setBorder(new LineBorder(new Color(238, 238, 238), 25));
         contenedor.setBackground(new Color(0, 128, 128));
-        contenedor.setPreferredSize(new Dimension(900, 600));
+        contenedor.setPreferredSize(new Dimension(700, 600));
         add(contenedor, BorderLayout.CENTER);
         contenedor.setLayout(new BorderLayout(0, 0));
         
@@ -200,6 +200,6 @@ public class VistaInsertar extends JPanel {
         
         // Recargar los resultados en la base de datos
 		List<Document> results = pr.findAll(collection);
-		this.vistaPrincipalAux.agregarTablas(results);
+		this.vistaPrincipal.agregarTablas(results);
     }
 }

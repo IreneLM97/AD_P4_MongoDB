@@ -17,9 +17,9 @@ import java.util.Set;
 import org.bson.json.JsonWriterSettings;
 
 
-public class VistaFiltro extends JPanel {
+public class VistaFiltrar extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private VistaPrincipalAux vistaPrincipalAux;
+	private VistaPrincipal vistaPrincipal;
     private final MongoCollection<Document> collection;
     private JPanel contenedor; // Definimos el panel como atributo para poder acceder a él desde otros métodos
     private JComboBox<String> comboBox;
@@ -29,8 +29,8 @@ public class VistaFiltro extends JPanel {
     private JPanel cuerpo;
 
 
-    public VistaFiltro(VistaPrincipalAux vistaPrincipalAux, MongoCollection<Document> collection) {
-        this.vistaPrincipalAux = vistaPrincipalAux;
+    public VistaFiltrar(VistaPrincipal vistaPrincipal, MongoCollection<Document> collection) {
+        this.vistaPrincipal = vistaPrincipal;
 		this.collection = collection;
         initializeUI();
     }
@@ -41,32 +41,27 @@ public class VistaFiltro extends JPanel {
         contenedor = new JPanel();
         contenedor.setBorder(new LineBorder(new Color(238, 238, 238), 25));
         contenedor.setBackground(new Color(0, 128, 128));
-        contenedor.setPreferredSize(new Dimension(600, 600));
+        contenedor.setPreferredSize(new Dimension(700, 600));
         add(contenedor, BorderLayout.CENTER);
         contenedor.setLayout(new BorderLayout(0, 0));
         
-        JPanel Cabecera = new JPanel();
-        contenedor.add(Cabecera, BorderLayout.NORTH);
-        Cabecera.setLayout(new MigLayout("", "[183px,grow][100px,grow][183px,grow]", "[25px]"));
+        JPanel cabecera = new JPanel();
+        contenedor.add(cabecera, BorderLayout.NORTH);
+        cabecera.setLayout(new MigLayout("", "[183px,grow][100px,grow][183px,grow]", "[25px]"));
         
-        JLabel calveLabel = new JLabel("CLAVE");
-        calveLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        Cabecera.add(calveLabel, "cell 0 0,grow");
+        JLabel claveLabel = new JLabel("CLAVE");
+        claveLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        cabecera.add(claveLabel, "cell 0 0,grow");
         
         JLabel operadorLabel = new JLabel("OPERADOR");
         operadorLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        Cabecera.add(operadorLabel, "cell 1 0,grow");
+        cabecera.add(operadorLabel, "cell 1 0,grow");
         
         JLabel valorLabel = new JLabel("VALOR");
         valorLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        Cabecera.add(valorLabel, "cell 2 0,grow");
+        cabecera.add(valorLabel, "cell 2 0,grow");
         
-//        JPanel cuerpo = new JPanel();
-//        cuerpo.setBackground(new Color(0, 128, 128));
-//        contenedor.add(cuerpo, BorderLayout.CENTER);
-//        cuerpo.setLayout(new GridLayout(7, 1, 0, 0));
-        
-     // Envuelve el panel cuerpo dentro de un JScrollPane para habilitar el desplazamiento vertical
+        // Envuelve el panel cuerpo dentro de un JScrollPane para habilitar el desplazamiento vertical
         JScrollPane scrollPane = new JScrollPane();
         contenedor.add(scrollPane, BorderLayout.CENTER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); // Ajusta la política de la barra de desplazamiento vertical
@@ -77,7 +72,6 @@ public class VistaFiltro extends JPanel {
         cuerpo.setLayout(new BoxLayout(cuerpo, BoxLayout.Y_AXIS)); // Utiliza BoxLayout con orientación vertical
         scrollPane.setViewportView(cuerpo); // Establece el cuerpo como vista del scroll pane
 
-        
         JPanel panel = new JPanel();
         panel.setName("filtroPanel"); // Etiqueta el panel como "filtroPanel"
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
@@ -101,8 +95,8 @@ public class VistaFiltro extends JPanel {
         cuerpo.add(panel_1);
         panel_1.setLayout(new MigLayout("", "[50px,grow][100px][50px,grow][100px][50px,grow][100px][50px,grow]", "[50px]"));
         
-        JButton AñadirFiltro = new JButton("Añadir Filtro");
-        AñadirFiltro.addActionListener(e -> {
+        JButton agregarFiltro = new JButton("Añadir Filtro");
+        agregarFiltro.addActionListener(e -> {
             JPanel nuevoPanel = crearNuevoPanel();
             int componentCount = cuerpo.getComponentCount(); // Obtener la cantidad de componentes en el cuerpo
             int insertIndex = Math.max(0, componentCount - 1); // Obtener el índice de inserción antes del último panel
@@ -113,10 +107,10 @@ public class VistaFiltro extends JPanel {
         });
 
         // Configuración del resto de componentes
-        panel_1.add(AñadirFiltro, "cell 1 0");
+        panel_1.add(agregarFiltro, "cell 1 0");
         
-        JButton EliminarFiltro = new JButton("Eliminar Filtro");
-        EliminarFiltro.addActionListener(e -> {
+        JButton eliminarFiltro = new JButton("Eliminar Filtro");
+        eliminarFiltro.addActionListener(e -> {
             int componentCount = cuerpo.getComponentCount();
             if (componentCount > 1) { // Asegurarse de que haya al menos un panel para eliminar
                 int indexToRemove = Math.max(0, componentCount - 2); // Obtener el índice del último panel
@@ -128,20 +122,20 @@ public class VistaFiltro extends JPanel {
             }
         });
 
-        panel_1.add(EliminarFiltro, "cell 3 0");
+        panel_1.add(eliminarFiltro, "cell 3 0");
         
-        JButton Filtrar = new JButton("Filtrar");
-        Filtrar.addActionListener(e -> {
+        JButton filtrar = new JButton("Filtrar");
+        filtrar.addActionListener(e -> {
         	ProductsRepository pr = new ProductsRepository();
         	String resultados = filtrar().toString();
             System.out.println(resultados.toString());
             System.out.println(pr.findByFields(resultados, collection));
-            vistaPrincipalAux.agregarTablas(pr.findByFields(resultados, collection));
-            vistaPrincipalAux.setFiltroJson(resultados);
+            vistaPrincipal.agregarTablas(pr.findByFields(resultados, collection));
+            vistaPrincipal.setFiltroJson(resultados);
 			
 			((JButton)e.getSource()).getRootPane().getParent().setVisible(false);
         });
-        panel_1.add(Filtrar, "cell 5 0");
+        panel_1.add(filtrar, "cell 5 0");
     }
 
     private void cargarClaves(JComboBox<String> comboBox) {
@@ -265,6 +259,4 @@ public class VistaFiltro extends JPanel {
         	}
         }
     }
-
-
 }

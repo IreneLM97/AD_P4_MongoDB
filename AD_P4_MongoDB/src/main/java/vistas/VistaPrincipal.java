@@ -17,7 +17,7 @@ import net.miginfocom.swing.MigLayout; // Importa clases para manejar eventos
 import repositories.products.ProductsRepository;
 import utils.JsonStringBuilder;
 
-public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincipalAux que extiende JPanel
+public class VistaPrincipal extends JPanel { // Declara la clase VistaPrincipalAux que extiende JPanel
 	private static final long serialVersionUID = 7191141515072057188L;
 	private final MongoCollection<Document> collection;
     private JPanel displayPanel;
@@ -27,7 +27,7 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
     private String filtroJson = null;
     JButton nuevoBoton;
 
-    public VistaPrincipalAux(MongoCollection<Document> collection) {
+    public VistaPrincipal(MongoCollection<Document> collection) {
         this.collection = collection;
         initializeUI();
     }
@@ -72,15 +72,15 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
 
         // Botón INSERTAR
         JButton insertar = new JButton("INSERTAR");
-        insertar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Indent-White.png")));
+        insertar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Indent-White.png")));
         insertar.setForeground(new Color(255, 255, 255));
         insertar.setBackground(new Color(0, 102, 153));
         insertar.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // Abre la nueva vista de inserción
-                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipalAux.this);
-                VistaInsertar vistaInsertar = new VistaInsertar(VistaPrincipalAux.this, collection);
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipal.this);
+                VistaInsertar vistaInsertar = new VistaInsertar(VistaPrincipal.this, collection);
                 JDialog dialog = new JDialog(frame, "Insertar Nuevo Elemento", Dialog.ModalityType.APPLICATION_MODAL);
                 dialog.getContentPane().add(vistaInsertar);
                 dialog.pack();
@@ -93,17 +93,17 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
 
         // Botón FILTRAR
         JButton filtrar = new JButton("FILTRAR");
-        filtrar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Paste-White.png")));
+        filtrar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Paste-White.png")));
         filtrar.setForeground(new Color(255, 255, 255));
         filtrar.setBackground(new Color(0, 102, 153));
         filtrar.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // Abre la nueva vista de inserción
-                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipalAux.this);
-                VistaFiltro vistaFiltro = new VistaFiltro(VistaPrincipalAux.this, collection);
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipal.this);
+                VistaFiltrar vistaFiltrar = new VistaFiltrar(VistaPrincipal.this, collection);
                 JDialog dialog = new JDialog(frame, "Filtrar elementos", Dialog.ModalityType.APPLICATION_MODAL);
-                dialog.getContentPane().add(vistaFiltro);
+                dialog.getContentPane().add(vistaFiltrar);
                 dialog.pack();
                 dialog.setLocationRelativeTo(frame);
                 dialog.setVisible(true);
@@ -151,14 +151,14 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         	public void actionPerformed(ActionEvent e) {
         	}
         });
-        actualizar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/javafx/scene/web/Copy_16x16_JFX.png")));
+        actualizar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/javafx/scene/web/Copy_16x16_JFX.png")));
         actualizar.setForeground(Color.WHITE);
         actualizar.setBackground(new Color(0, 102, 153));
         cuerpo_botones.add(actualizar, "cell 4 0");
         
         eliminar = new JButton("ELIMINAR");
         eliminar.setEnabled(false);
-        eliminar.setIcon(new ImageIcon(VistaPrincipalAux.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
+        eliminar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
         eliminar.setForeground(Color.WHITE);
         eliminar.setBackground(new Color(0, 102, 153));
         cuerpo_botones.add(eliminar, "cell 5 0");
@@ -625,8 +625,4 @@ public class VistaPrincipalAux extends JPanel { // Declara la clase VistaPrincip
         ProductsRepository pr = new ProductsRepository();
         pr.replaceOneById(id, jsonUpdateBuilder.build(), collection);
     }
-
-
-
-
 }
