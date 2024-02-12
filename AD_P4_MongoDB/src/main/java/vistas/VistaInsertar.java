@@ -10,37 +10,51 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
-import repositories.products.ProductsRepository;
 import utils.JsonStringBuilder;
 
-import com.mongodb.client.MongoCollection;
-import org.bson.Document;
+import controller.MongoController;
 
+/**
+ * Esta clase representa la vista para insertar datos en la base de datos MongoDB.
+ */
 public class VistaInsertar extends JPanel {
 	private static final long serialVersionUID = 1L;
+	
+	// Referencia a la vista principal
 	private VistaPrincipal vistaPrincipal;
-    private final MongoCollection<Document> collection;
+	// Controlador de MongoDB
+	private MongoController controller;
     
     // Declaramos variables como atributos para poder acceder a ellas desde toda la clase
     private JPanel displayPanel;
     private JTable table;
 
-    public VistaInsertar(VistaPrincipal vistaPrincipal, MongoCollection<Document> collection) {
+    /**
+     * Constructor de la clase VistaInsertar.
+     * 
+     * @param vistaPrincipal Referencia a la vista principal.
+     * @param controller Controlador de MongoDB.
+     */
+    public VistaInsertar(VistaPrincipal vistaPrincipal, MongoController controller) {
         this.vistaPrincipal = vistaPrincipal;
-		this.collection = collection;
-        initializeUI();
+		this.controller = controller;
+        initializeUI(); 
     }
 
+    /**
+     * Inicializa la interfaz de usuario de la vista insertar.
+     */
     private void initializeUI() {
+    	// Configuración del panel principal
         setLayout(new BorderLayout());
         
-        // Contenedor principal
+        // Contenedor principal de la ventana
         JPanel container = new JPanel();
         container.setPreferredSize(new Dimension(700, 600));
         add(container, BorderLayout.CENTER);
         container.setLayout(new MigLayout("", "[50px][600px,grow][50px]", "[50px][500px,grow][50px]"));
 
-        // Panel para la tabla y los campos clave-valor
+        // Panel contenedor de la información
         JPanel panel = new JPanel();
         panel.setBackground(new Color(238, 238, 238));
         container.add(panel, "cell 1 1,grow");
@@ -53,33 +67,37 @@ public class VistaInsertar extends JPanel {
         panel.add(cuerpo_botones, "cell 0 0,alignx center,aligny center");
         cuerpo_botones.setLayout(new MigLayout("", "[175px,grow][100px][50px][100px][175px,grow]", "[21px]"));
 
-        // Botón para añadir nuevo campo
-        JButton btnAgregarCampo = new JButton("Añadir campo");
-        btnAgregarCampo.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Indent-White.png")));
-        btnAgregarCampo.setForeground(new Color(255, 255, 255));
-        btnAgregarCampo.setBackground(new Color(0, 102, 153));
-        cuerpo_botones.add(btnAgregarCampo, "cell 1 0,grow");
-        btnAgregarCampo.addActionListener(new ActionListener() {
+        // Botón INSERTAR CAMPO
+        JButton insertRowBtn = new JButton("Añadir campo");
+        insertRowBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Indent-White.png")));
+        insertRowBtn.setForeground(new Color(255, 255, 255));
+        insertRowBtn.setBackground(new Color(0, 102, 153));
+        // Evento del botón INSERTAR CAMPO
+        insertRowBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
             	DefaultTableModel model = (DefaultTableModel) table.getModel();
                 int selectedRow = table.getSelectedRow();
 
-                if (selectedRow != -1) { // Si hay una fila seleccionada
-                    model.insertRow(selectedRow + 1, new Object[]{null, null}); // Insertar debajo de la fila seleccionada
+                if (selectedRow != -1) { 
+                	// Si hay una fila seleccionada insertar debajo de la fila seleccionada
+                    model.insertRow(selectedRow + 1, new Object[]{null, null}); 
                 } else {
-                    model.addRow(new Object[]{null, null}); // Agregar al final de la tabla
+                	// Si no hay fila seleccionada insertar al final de la tabla
+                    model.addRow(new Object[]{null, null}); 
                 }
                 table.setEnabled(true);
         	}
         });
+        cuerpo_botones.add(insertRowBtn, "cell 1 0,grow");
 
-        // Botón para eliminar nuevo campo
-        JButton btnEliminarCampo = new JButton("Eliminar campo");
-        btnEliminarCampo.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
-        btnEliminarCampo.setForeground(Color.WHITE);
-        btnEliminarCampo.setBackground(new Color(195, 72, 46));
-        btnEliminarCampo.addActionListener(new ActionListener() {
+        // Botón ELIMINAR CAMPO
+        JButton deleteRowBtn = new JButton("Eliminar campo");
+        deleteRowBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
+        deleteRowBtn.setForeground(Color.WHITE);
+        deleteRowBtn.setBackground(new Color(195, 72, 46));
+        // Evento del botón ELIMINAR CAMPO
+        deleteRowBtn.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent e) {
         		// Verificar si hay filas seleccionadas
@@ -95,16 +113,16 @@ public class VistaInsertar extends JPanel {
         		}
         	}
         });
-        cuerpo_botones.add(btnEliminarCampo, "cell 3 0,grow");
+        cuerpo_botones.add(deleteRowBtn, "cell 3 0,grow");
 
-        // Creación del cuerpo principal
+        // Panel principal que contendrá la tabla
         JPanel cuerpo_info = new JPanel();
         cuerpo_info.setBackground(new Color(128, 255, 0));
         cuerpo_info.setPreferredSize(new Dimension(900, 500));
         panel.add(cuerpo_info, "cell 0 1,grow");
         cuerpo_info.setLayout(new BorderLayout(0, 0));
 
-        // Creamos el scrollPane
+        // Envuelve el panel principal con un JScrollPane
         JScrollPane scrollPane = new JScrollPane();
         cuerpo_info.add(scrollPane, BorderLayout.CENTER);
 
@@ -114,20 +132,24 @@ public class VistaInsertar extends JPanel {
         scrollPane.setViewportView(displayPanel);
         displayPanel.setLayout(new GridLayout(1, 0, 5, 5));
 
+        // Creamos la tabla y lo incluimos en el JScrollPane
         table = createTable();
         scrollPane.setViewportView(table);
 
+        // Panel para el botón guardar
         JPanel cuerpo_guardar = new JPanel();
         cuerpo_guardar.setPreferredSize(new Dimension(900, 50));
         cuerpo_guardar.setBackground(new Color(238, 238, 238));
         cuerpo_guardar.setLayout(new MigLayout("", "[400px,grow][100px][400px,grow]", "[40px]"));
         panel.add(cuerpo_guardar, "cell 0 2,growx,aligny top");
 
-        JButton btnGuardar = new JButton("Guardar");
-        btnGuardar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/Iconos/Icono_Confirmacion.png")));
-        btnGuardar.setForeground(new Color(255, 255, 255));
-        btnGuardar.setBackground(new Color(90, 153, 73));
-        btnGuardar.addActionListener(new ActionListener() {
+        // Botón GUARDAR
+        JButton guardarBtn = new JButton("Guardar");
+        guardarBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/Iconos/Icono_Confirmacion.png")));
+        guardarBtn.setForeground(new Color(255, 255, 255));
+        guardarBtn.setBackground(new Color(90, 153, 73));
+        // Evento del botón GUARDAR
+        guardarBtn.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent e) {
         		// Guardamos el registro en la base de datos
@@ -137,20 +159,32 @@ public class VistaInsertar extends JPanel {
         		cerrar();
         	}
         });
-        cuerpo_guardar.add(btnGuardar, "cell 1 0,grow");
+        cuerpo_guardar.add(guardarBtn, "cell 1 0,grow");
     }
     
+    /**
+     * Método para crear una tabla con configuraciones específicas.
+     * 
+     * @return La tabla creada con las configuraciones especificadas.
+     */
     private JTable createTable() {
+    	// Definir nombres de columnas
         String[] columnNames = {"CLAVE", "VALOR"};
+        
+        // Crear modelo de tabla personalizado
         DefaultTableModel model = new DefaultTableModel(null, columnNames) {
 			private static final long serialVersionUID = 1L;
         };
 
+        // Crear la tabla con el modelo personalizado
         @SuppressWarnings("serial")
 		JTable table = new JTable(model) {
+        	
+        	// Sobreescribe el método prepareRenderer para personalizar el color de las filas
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component comp = super.prepareRenderer(renderer, row, column);
+                // Establecer el fondo de las filas no seleccionadas en blanco
                 if (!isRowSelected(row)) {
                     comp.setBackground(Color.WHITE);
                 }
@@ -183,28 +217,28 @@ public class VistaInsertar extends JPanel {
 
         return table;
     }
-
-    // Método para cerrar esta vista
-	private void cerrar() {
-		Window window = SwingUtilities.getWindowAncestor(this);
-	    window.dispose();
-    }
 	
+    /**
+     * Método para guardar los cambios en la base de datos.
+     */
 	private void guardarCambiosEnBD() {
         // Construir el JSON a partir de los datos de la tabla
         JsonStringBuilder jsonInsertBuilder = new JsonStringBuilder();
         Object valueObject;
 
-        int emptyFieldsCount = 0; // Contador para campos vacíos
+        // Contador para campos 
+        int emptyFieldsCount = 0; 
 
         DefaultTableModel model = (DefaultTableModel) table.getModel();
+        // Recorremos las filas para obtener clave-valor
         for (int i = 0; i < model.getRowCount(); i++) {
             String clave = (String) model.getValueAt(i, 0);
             valueObject = model.getValueAt(i, 1);
             
             // Omitir la fila si la columna clave o valor están a null o cadena vacía
             if (clave == null || clave.isEmpty() || valueObject == null) {
-                emptyFieldsCount++; // Incrementar el contador de campos vacíos
+            	// Incrementar el contador de campos vacíos
+                emptyFieldsCount++; 
             } else {
                 // Agregar clave y valor al JSON
             	jsonInsertBuilder.append(clave, valueObject);
@@ -221,14 +255,22 @@ public class VistaInsertar extends JPanel {
         }
 
         // Ingresar en la base de datos el registro
-        ProductsRepository pr = new ProductsRepository();
-        pr.insertOne(jsonInsertBuilder.build(), collection);
+        controller.insertOne(jsonInsertBuilder.build());
         
         // Mostrar mensaje
         JOptionPane.showMessageDialog(null, "Insertado correctamente", "Registro insertado correctamente", JOptionPane.INFORMATION_MESSAGE);
         
         // Mostrar todas las tablas con los datos actualizados
-        this.vistaPrincipal.agregarTablas(pr.findAll(collection));
+        this.vistaPrincipal.agregarTablas(controller.findAll());
     }
-
+	
+	/**
+     * Método para cerrar la ventana actual.
+     */
+	private void cerrar() {
+		// Obtener la ventana principal que contiene este panel
+		Window window = SwingUtilities.getWindowAncestor(this);
+		// Cerrar la ventana
+	    window.dispose();
+    }
 }

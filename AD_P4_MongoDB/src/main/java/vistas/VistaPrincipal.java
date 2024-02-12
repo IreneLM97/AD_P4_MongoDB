@@ -1,9 +1,9 @@
 package vistas;
 
-import javax.swing.*; // Importa clases base de Swing
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*; // Importa clases para manejo de componentes gráficos
+import java.awt.*; 
 import java.awt.event.*;
 import java.io.InputStream;
 import java.util.List;
@@ -11,33 +11,39 @@ import java.util.Map;
 
 import org.bson.Document;
 
-import com.mongodb.client.MongoCollection;
-
-import net.miginfocom.swing.MigLayout; // Importa clases para manejar eventos
-import repositories.products.ProductsRepository;
+import controller.MongoController;
+import net.miginfocom.swing.MigLayout; 
 import utils.JsonStringBuilder;
 
+/**
+ * Esta clase representa la vista principal de la aplicación.
+ */
 public class VistaPrincipal extends JPanel {
 	private static final long serialVersionUID = 7191141515072057188L;
-	private final MongoCollection<Document> collection;
+    private MongoController controller;
 	
+    // Declaramos variables como atributos para poder acceder a ellas desde toda la clase
     private JPanel displayPanel;
-    JButton eliminarBtn;
-    JButton filtrarBtn;
-    
+    private JButton eliminarBtn;
+    private JButton filtrarBtn;
+    private JButton eliminarFiltroBtn;
     private String filtroJson = null;
-    JButton eliminarFiltroBtn;
 
-    public VistaPrincipal(MongoCollection<Document> collection) {
-        this.collection = collection;
+    /**
+     * Constructor de la clase VistaPrincipal.
+     * 
+     * @param controller El controlador de MongoDB.
+     */
+    public VistaPrincipal(MongoController controller) {
+        this.controller = controller;
         initializeUI();
     }
     
-    public void setFiltroJson(String filtroJson) {
-    	this.filtroJson = filtroJson;
-    }
-    
+    /**
+     * Inicializa la interfaz de usuario de la vista principal.
+     */
     private void initializeUI() {
+    	// Configuración del panel principal
         setBounds(new Rectangle(0, 0, 900, 600));
         setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
         setLayout(new BorderLayout(0, 0));
@@ -58,7 +64,7 @@ public class VistaPrincipal extends JPanel {
         titulo_cabecera.setForeground(new Color(255, 255, 255));
         cabecera.add(titulo_cabecera, BorderLayout.CENTER);
 
-        // Panel para los botones
+        // Panel contenedor de los botones y las tablas
         JPanel panel = new JPanel();
         add(panel, BorderLayout.CENTER);
         panel.setLayout(new BorderLayout(0, 0));
@@ -76,12 +82,13 @@ public class VistaPrincipal extends JPanel {
         insertar.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Indent-White.png")));
         insertar.setForeground(new Color(255, 255, 255));
         insertar.setBackground(new Color(0, 102, 153));
+        // Evento del botón INSERTAR
         insertar.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // Abre la nueva vista de inserción
                 JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipal.this);
-                VistaInsertar vistaInsertar = new VistaInsertar(VistaPrincipal.this, collection);
+                VistaInsertar vistaInsertar = new VistaInsertar(VistaPrincipal.this, controller);
                 JDialog dialog = new JDialog(frame, "Insertar Nuevo Elemento", Dialog.ModalityType.APPLICATION_MODAL);
                 dialog.getContentPane().add(vistaInsertar);
                 dialog.pack();
@@ -97,37 +104,43 @@ public class VistaPrincipal extends JPanel {
         filtrarBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Paste-White.png")));
         filtrarBtn.setForeground(new Color(255, 255, 255));
         filtrarBtn.setBackground(new Color(0, 102, 153));
+        // Evento del boton FILTRAR
         filtrarBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
             	if (filtrarBtn.isEnabled()) {
-	                // Abre la nueva vista de inserción
+	                // Abrir la nueva vista de inserción
 	                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(VistaPrincipal.this);
-	                VistaFiltrar vistaFiltrar = new VistaFiltrar(VistaPrincipal.this, collection);
+	                VistaFiltrar vistaFiltrar = new VistaFiltrar(VistaPrincipal.this, controller);
 	                JDialog dialog = new JDialog(frame, "Filtrar elementos", Dialog.ModalityType.APPLICATION_MODAL);
 	                dialog.getContentPane().add(vistaFiltrar);
 	                dialog.pack();
 	                dialog.setLocationRelativeTo(frame);
 	                dialog.setVisible(true);
-	                eliminarBtn.setEnabled(true);
-	                filtrarBtn.setEnabled(false);
 	                
-	                // Crear el nuevo botón
+	                // Deshabilitar botón de filtrar y habilita botón de eliminar
+	                filtrarBtn.setEnabled(false);
+	                eliminarBtn.setEnabled(true);
+	                
+	                // Crear botón de ELIMINAR FILTRO
 	                eliminarFiltroBtn = new JButton("Eliminar Filtro");
 	                eliminarFiltroBtn.setForeground(new Color(255, 255, 255));
 	                eliminarFiltroBtn.setBackground(new Color(52, 0, 111));
+	                // Evento del botón ELIMINAR FILTRO
 	                eliminarFiltroBtn.addMouseListener(new MouseAdapter() {
 	                    @Override
-	                    public void mouseClicked(MouseEvent e) {	                    	
-	                        eliminarBtn.setEnabled(false);
+	                    public void mouseClicked(MouseEvent e) {
+	                    	// Habilitar botón de filtrar y deshabilitar botón de eliminar
 	                        filtrarBtn.setEnabled(true);
+	                        eliminarBtn.setEnabled(false);
 	                        
-	                        ProductsRepository pr = new ProductsRepository();
-	                        agregarTablas(pr.findAll(collection));
+	                        // Mostrar todos los registros de la base de datos
+	                        agregarTablas(controller.findAll());
 	                        
+	                        // Limpiar el filtro de búsqueda
 	                        filtroJson = null;
 	                        
-	                        // Eliminar el botón
+	                        // Eliminar el botón de ELIMINAR FILTRO
 	                        cuerpo_botones.remove(eliminarFiltroBtn);
 	                        cuerpo_botones.revalidate();
 	                        cuerpo_botones.repaint();
@@ -145,11 +158,13 @@ public class VistaPrincipal extends JPanel {
         });
         cuerpo_botones.add(filtrarBtn, "cell 3 0,alignx center,aligny center");
         
+        // Botón ELIMINAR
         eliminarBtn = new JButton("ELIMINAR");
         eliminarBtn.setEnabled(false);
         eliminarBtn.setIcon(new ImageIcon(VistaPrincipal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Cut-White.png")));
         eliminarBtn.setForeground(Color.WHITE);
         eliminarBtn.setBackground(new Color(195, 72, 46));
+        // Evento del botón ELIMINAR
         eliminarBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -158,15 +173,18 @@ public class VistaPrincipal extends JPanel {
                 
                 // Verificar la opción seleccionada por el usuario
                 if (opcion == JOptionPane.YES_OPTION) {
-                    ProductsRepository pr = new ProductsRepository();
-                    pr.deleteManyByCriteria(filtroJson, collection);
-                    agregarTablas(pr.findAll(collection));
+                	// Eliminar todos los registros que cumplen con el filtro dado
+                    controller.deleteManyByCriteria(filtroJson);
+                    agregarTablas(controller.findAll());
                     
+                    // Habilitar el botón de filtrar y deshabilitar el botón de eliminar
                     eliminarBtn.setEnabled(false);
                     filtrarBtn.setEnabled(true);
+                    
+                    // Limpiar el filtro de búsqueda
                     filtroJson = null;
                     
-                    // Eliminar el botón nuevoBoton
+                    // Eliminar el botón ELIMINAR FILTRO
                     cuerpo_botones.remove(eliminarFiltroBtn);
                     cuerpo_botones.revalidate();
                     cuerpo_botones.repaint();
@@ -175,39 +193,47 @@ public class VistaPrincipal extends JPanel {
         });
         cuerpo_botones.add(eliminarBtn, "cell 4 0");
         
+        // Botón INSERTAR_BD
         JButton insertar_bd = new JButton("INSERTAR_BD");
         insertar_bd.setForeground(Color.WHITE);
         insertar_bd.setBackground(new Color(0, 102, 153));
         cuerpo_botones.add(insertar_bd, "cell 6 0");
+        // Evento del botón INSERTAR_BD
         insertar_bd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	// Obtener la ruta del fichero e insertar los datos
                 InputStream filePath = getClass().getClassLoader().getResourceAsStream("BD_Test_Samples.json");
-                ProductsRepository pr = new ProductsRepository();
-                pr.insertJsonData(filePath, collection);
-                agregarTablas(pr.findAll(collection));
+                controller.insertJsonData(filePath);
+                agregarTablas(controller.findAll());
                 
                 // Mensaje informativo
                 JOptionPane.showMessageDialog(null, "Base de datos insertada correctamente.", "Mensaje informativo", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         
+        // Botón ELIMINAR_BD
         JButton eliminar_bd = new JButton("ELIMINAR_BD");
         eliminar_bd.setForeground(Color.WHITE);
         eliminar_bd.setBackground(new Color(195, 72, 46));
         cuerpo_botones.add(eliminar_bd, "cell 7 0");
+        // Evento del botón ELIMINAR_BD
         eliminar_bd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	// Mostrar un cuadro de diálogo de confirmación
             	int opcion = JOptionPane.showConfirmDialog(null, "¿Estás seguro de que quieres eliminar todos los registros?", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (opcion == JOptionPane.YES_OPTION) {
-                    ProductsRepository pr = new ProductsRepository();
-                    pr.deleteAll(collection);
-                    agregarTablas(pr.findAll(collection));
+               
+            	// Verificar la opción seleccionada por el usuario
+            	if (opcion == JOptionPane.YES_OPTION) {
+            		// Eliminar todos los registros
+                    controller.deleteAll();
+                    agregarTablas(controller.findAll());
                 }
             }
         });
 
+        // Panel para las tablas
         JPanel cuerpo_info = new JPanel();
         panel.add(cuerpo_info, BorderLayout.CENTER);
         cuerpo_info.setLayout(new MigLayout("", "[50px][800px,grow][50px]", "[420px,grow][50px]"));
@@ -230,8 +256,23 @@ public class VistaPrincipal extends JPanel {
             }
         });
     }
+
+    /**
+     * Método que establece el filtro JSON para la vista principal.
+     * 
+     * @param filtroJson Filtro JSON a establecer.
+     */
+    public void setFiltroJson(String filtroJson) {
+    	this.filtroJson = filtroJson;
+    }
     
+    /**
+     * Método para agregar tablas al panel de visualización.
+     * 
+     * @param documents Lista de documentos para crear tablas.
+     */
     public void agregarTablas(List<Document> documents) {
+    	// Limpiar el panel de visualización
         displayPanel.removeAll();
 
         // Configurar el layout del displayPanel como GridBagLayout
@@ -252,12 +293,15 @@ public class VistaPrincipal extends JPanel {
         int currentColumn = 0;
         int remainingWidth = screenWidth; // Ancho restante disponible
 
+        // Recorremos los documentos para mostrarlos en el panel
         for (Document doc : documents) {
+        	// Creamos la tabla que contiene la información del documento
             JTable table = createTableFromDocument(doc);
             Object idObject = doc.values().iterator().next();
             String tableId = (idObject != null) ? idObject.toString() : ""; // Convertir a cadena
             table.setOpaque(false);
             table.setName(tableId);
+            
             // Calcular la altura de la tabla multiplicando el número de filas por la altura de cada fila
             int tableHeight = table.getRowCount() * table.getRowHeight();
 
@@ -271,33 +315,34 @@ public class VistaPrincipal extends JPanel {
 
             // Verificar si hay suficiente espacio horizontal para insertar otra tabla
             int tableWidth = table.getPreferredSize().width;
-            if (tableWidth <= remainingWidth) {
+            if (tableWidth <= remainingWidth) { // Si hay suficiente espacio horizontal
                 gbc.gridwidth = 1;
                 remainingWidth -= tableWidth + gbc.insets.left + gbc.insets.right;
-            } else {
-                // No hay suficiente espacio horizontal, mover a la siguiente fila
+            } else { // No hay suficiente espacio horizontal, mover a la siguiente fila
                 gbc.gridwidth = numColumns - currentColumn;
                 remainingWidth = screenWidth;
                 currentColumn = 0;
                 gbc.gridy += gridHeight;
             }
-            // Crear un JPanel para envolver la tabla y hacerla transparente
-            JPanel panel1 = new JPanel(new BorderLayout());
-            JPanel panel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // Layout para alinear botones a la derecha
-            panel2.setName(tableId);
-            panel2.setOpaque(false); // Hacer el panel completamente transparente
-            panel2.setBorder(null); // Eliminar cualquier borde
-            panel1.setOpaque(false); // Hacer el panel completamente transparente
-            panel1.setBorder(null); // Eliminar cualquier borde
+            
+            // Crear un JPanel para envolver la tabla y otro para envolver los botones de la tabla
+            JPanel panel_table = new JPanel(new BorderLayout());
+            JPanel panel_botones = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // Layout para alinear botones a la derecha
+            panel_botones.setName(tableId);
+            panel_botones.setOpaque(false); // Hacer el panel completamente transparente
+            panel_botones.setBorder(null); // Eliminar cualquier borde
+            panel_table.setOpaque(false); // Hacer el panel completamente transparente
+            panel_table.setBorder(null); // Eliminar cualquier borde
 
-            // Crea los botones y los agrega al panel2
+            // Crea los botones y los agrega al panel_botones
+            // Botón EDITAR TABLA
             JButton editTableBtn = new JButton("");
             editTableBtn.setPreferredSize(new Dimension(30, 30));
             editTableBtn.setForeground(new Color(255, 255, 255));
             editTableBtn.setBackground(new Color(52, 0, 111));
             editTableBtn.setIcon(new ImageIcon(getClass().getResource("/Iconos/Icono_Edicion.png")));
             editTableBtn.setName(tableId); // Establecer el ID como el nombre del botón
-            // ActionListener para el botón de edición
+            // Evento del botón EDITAR TABLA
             editTableBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -308,25 +353,31 @@ public class VistaPrincipal extends JPanel {
                     if (table != null) {
                         table.setEnabled(true); // Habilitar edición de la tabla
                         table.setBackground(Color.WHITE);
+                        
+                        // Creación del botón CONFIRMAR CAMBIOS
                         JButton confirmBtn = new JButton();
                         confirmBtn.setBackground(new Color(14, 161, 41));
                         confirmBtn.setPreferredSize(new Dimension(30, 30));
                         confirmBtn.setIcon(new ImageIcon(getClass().getResource("/Iconos/Icono_Confirmacion.png")));
                         confirmBtn.setName(editTableBtn.getName());
+                        // Evento del botón CONFIRMAR CAMBIOS
                         confirmBtn.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                            	ProductsRepository pr = new ProductsRepository();
+                            	// Mostrar mensaje de confirmación
                                 int opcion = JOptionPane.showConfirmDialog(null, "¿Desea guardar los cambios?", "Confirmar", JOptionPane.YES_NO_OPTION);
+                                
+                                // Verificar respuesta del usuario
                                 if (opcion == JOptionPane.YES_OPTION) {
                                     guardarCambiosEnBD(table);
-                                    agregarTablas(pr.findAll(collection));
-
-                                } else {
-                                    agregarTablas(pr.findAll(collection));
                                 }
-                                JPanel panel2 = getPanel2ByName(confirmBtn.getName());
-                                panel2.remove(confirmBtn);
+                                
+                                // Mostramos las tablas en la vista
+                                agregarTablas(controller.findAll());
+                                
+                                // Eliminamos el botón de confirmación
+                                JPanel panel_botones = getPanelBotonesByName(confirmBtn.getName());
+                                panel_botones.remove(confirmBtn);
                                 table.setBackground(new Color(238, 238, 238));
                                 displayPanel.revalidate();
                                 JTable table = getTableByName(confirmBtn.getName());
@@ -334,13 +385,15 @@ public class VistaPrincipal extends JPanel {
                                 table.clearSelection();
                             }
                         });
-                        JPanel btnTablePanel = getPanel2ByName(confirmBtn.getName());
+                        JPanel btnTablePanel = getPanelBotonesByName(confirmBtn.getName());
                         
-                        // Agregar dos botones adicionales al panel2
+                        // Agregar dos botones adicionales al panel_botones
+                        // Botón ELIMINAR CAMPO
                         JButton deleteRowBtn = new JButton("");
                         deleteRowBtn.setBackground(new Color(201, 30, 18));
                         deleteRowBtn.setPreferredSize(new Dimension(30, 30));
                         deleteRowBtn.setIcon(new ImageIcon(getClass().getResource("/Iconos/Icono_Sustraer.png")));
+                        // Evento del botón ELIMINAR CAMPO
                         deleteRowBtn.addActionListener(new ActionListener() {
                         	@Override
                         	public void actionPerformed(ActionEvent e) {
@@ -361,10 +414,12 @@ public class VistaPrincipal extends JPanel {
                         	}
                         });
                         
+                        // Botón INSERTAR CAMPO
                         JButton insertRowBtn = new JButton("");
                         insertRowBtn.setBackground(new Color(14, 161, 41));
                         insertRowBtn.setPreferredSize(new Dimension(30, 30));
                         insertRowBtn.setIcon(new ImageIcon(getClass().getResource("/Iconos/Icono_Agregar.png")));
+                        // Evento del botón INSERTAR CAMPO
                         insertRowBtn.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -395,13 +450,16 @@ public class VistaPrincipal extends JPanel {
                         btnTablePanel.add(deleteRowBtn);
                         btnTablePanel.add(insertRowBtn);
 
+                        // Revalidar el panel que muestra los componentes
                         displayPanel.revalidate();
                     } else {
+                    	// Mostrar mensaje de error si no se encontró la tabla
                     	JOptionPane.showMessageDialog(null, "No se ha encontrado la tabla.", "Error", JOptionPane.WARNING_MESSAGE);
                     }
                 }
             });
             
+            // Botón ELIMINAR TABLA
             JButton deleteTableBtn = new JButton("");
             deleteTableBtn.setPreferredSize(new Dimension(30, 30));
             deleteTableBtn.setForeground(new Color(255, 255, 255));
@@ -409,20 +467,20 @@ public class VistaPrincipal extends JPanel {
             deleteTableBtn.setIcon(new ImageIcon(getClass().getResource("/Iconos/Icono_Papelera.png")));
             // Obtener el valor de la clave "id"
             deleteTableBtn.setName(tableId); // Establecer el ID como el nombre del botón
+            // Evento del botón ELIMINAR TABLA
             deleteTableBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Obtén el panel que contiene el botón
+                    // Obtener el panel que contiene el botón
                     JPanel panelContenedor = (JPanel) deleteTableBtn.getParent().getParent(); // El botón está contenido en el panel2, que a su vez está contenido en el panel1
 
-                    // Muestra un cuadro de diálogo de confirmación
+                    // Mostrar un cuadro de diálogo de confirmación
                     int opcion = JOptionPane.showConfirmDialog(null, "¿Estás seguro de que quieres eliminar este elemento?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
 
-                    // Verifica la opción seleccionada por el usuario
+                    // Verificar la opción seleccionada por el usuario
                     if (opcion == JOptionPane.YES_OPTION) {
                         // Si el usuario hace clic en "SI", entonces elimina el elemento
-                        ProductsRepository pr = new ProductsRepository();
-                        pr.deleteOneById(deleteTableBtn.getName(), collection);
+                        controller.deleteOneById(deleteTableBtn.getName());
 
                         // Remueve el panel que contiene la tabla del displayPanel
                         displayPanel.remove(panelContenedor);
@@ -431,54 +489,63 @@ public class VistaPrincipal extends JPanel {
                         displayPanel.revalidate();
                         displayPanel.repaint();
                         ajustarColumnasDisplayPanel();
-                    } else {
-                        // Si el usuario hace clic en "NO" o cierra la ventana, no hagas nada
-                        // Opcionalmente, puedes mostrar un mensaje o realizar otra acción aquí
-                    }
+                    } 
                 }
             });
-            panel2.add(editTableBtn);
-            panel2.add(deleteTableBtn);
+            panel_botones.add(editTableBtn);
+            panel_botones.add(deleteTableBtn);
 
+            // Panel contenedor de la tabla
             JPanel tablePanel = new JPanel(new BorderLayout());
             tablePanel.setOpaque(false); // Hacer el panel completamente transparente
             tablePanel.setBorder(null); // Eliminar cualquier borde
             tablePanel.add(table.getTableHeader(), BorderLayout.NORTH); // Agregar el encabezado de la tabla al panel
             tablePanel.add(table, BorderLayout.CENTER); // Agregar la tabla al panel
-            panel1.add(panel2, BorderLayout.NORTH); // Agregar el panel de botones al panel1
-            panel1.add(tablePanel, BorderLayout.CENTER); // Agregar la tabla al panel1
+            panel_table.add(panel_botones, BorderLayout.NORTH); // Agregar el panel de botones al panel1
+            panel_table.add(tablePanel, BorderLayout.CENTER); // Agregar la tabla al panel1
 
-            // Agregar panel1 al displayPanel con las restricciones adecuadas
-            displayPanel.add(panel1, gbc);
+            // Agregar panel_table al displayPanel con las restricciones adecuadas
+            displayPanel.add(panel_table, gbc);
 
             // Actualizar las coordenadas de gridbag para la próxima tabla si se inserta en la misma fila
             if (gbc.gridwidth == 1) {
                 currentColumn++;
             }
         }
+        
+        // Ajustar las tablas en el display
         ajustarColumnasDisplayPanel();
         displayPanel.revalidate();
     }
 
-
-    private JTable createTableFromDocument(Document doc) {
+    /**
+     * Crea una tabla a partir de un documento.
+     * 
+     * @param document Documento que contiene los datos para la tabla.
+     * @return Tabla creada con los datos.
+     */
+    private JTable createTableFromDocument(Document document) {
+    	// Definir nombres de columnas
         String[] columnNames = {"CLAVE", "VALOR"};
+        
+        // Crear modelo de tabla personalizado
         DefaultTableModel model = new DefaultTableModel(null, columnNames) {
 			private static final long serialVersionUID = 1L;
 
 			// Sobreescribe el método isCellEditable para controlar la edición de las celdas
             @Override
             public boolean isCellEditable(int row, int column) {
-                // Desactiva la edición para la primera fila
+                // Desactiva la edición para la primera fila (id)
                 return !(row == 0 && column == 1 || row == 0 && column == 0);
             }
         };
 
-        // Agregar datos del documento
-        for (Map.Entry<String, Object> entry : doc.entrySet()) {
+        // Agregar datos del documento al modelo de tabla
+        for (Map.Entry<String, Object> entry : document.entrySet()) {
             model.addRow(new Object[]{entry.getKey(), entry.getValue()});
         }
 
+        // Crear la tabla con el modelo personalizado
         JTable table = new JTable(model);
         table.setRowHeight(30); // Ajustar la altura de las filas
         table.setEnabled(false); // Habilitar edición de la tabla
@@ -503,9 +570,17 @@ public class VistaPrincipal extends JPanel {
         return table;
     }
     
+    /**
+     * Ajusta la distribución de las columnas en el panel de visualización.
+     * Este método se utiliza para organizar las tablas en el panel de visualización de acuerdo con el ancho de la ventana.
+     */
     private void ajustarColumnasDisplayPanel() {
+    	// Obtener el ancho de la ventana
         int screenWidth = this.getWidth();
         int preferredTableWidth = 500; // Ancho preferido de la tabla
+        
+        // Calcular el número máximo de columnas basado en el ancho de la ventana 
+        // y el ancho preferido de la tabla
         int numColumns = Math.max(screenWidth / preferredTableWidth, 1);
 
         // Configurar el layout del displayPanel como GridBagLayout
@@ -518,7 +593,8 @@ public class VistaPrincipal extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0; // Asegurar que las tablas se expandan horizontalmente
         
-        gbc.insets = new Insets(5, 5, 5, 5); // Establecer el margen entre las celdas
+        // Establecer el margen entre las celdas
+        gbc.insets = new Insets(5, 5, 5, 5); 
         
         // Obtener todas las componentes (tablas) del displayPanel
         Component[] components = displayPanel.getComponents();
@@ -539,65 +615,97 @@ public class VistaPrincipal extends JPanel {
         displayPanel.revalidate();
     }
 
+    /**
+     * Obtiene una tabla del panel de visualización mediante su nombre.
+     * 
+     * @param name Nombre de la tabla que se busca.
+     * @return Tabla correspondiente al nombre especificado, o null si no se encuentra.
+     */
     private JTable getTableByName(String name) {
+    	// Obtener todas las componentes (paneles) del displayPanel
         Component[] components = displayPanel.getComponents();
         for (Component component : components) {
             if (component instanceof JPanel) {
                 JPanel panel1 = (JPanel) component;
+                // Obtener todas las componentes (paneles) dentro del panel1
                 Component[] panel1Components = panel1.getComponents();
                 for (Component panel1Component : panel1Components) {
                     if (panel1Component instanceof JPanel) {
                         JPanel panel = (JPanel) panel1Component;
+                        // Obtener todas las componentes (tablas) dentro del panel
                         Component[] panelComponents = panel.getComponents();
                         for (Component panelComponent : panelComponents) {
+                        	// Verificar si la componente es una tabla y su nombre coincide con el especificado
                             if (panelComponent instanceof JTable && panelComponent.getName() != null && panelComponent.getName().equals(name)) {
-                                return (JTable) panelComponent;
+                            	// Devolver la tabla encontrada
+                            	return (JTable) panelComponent;
                             }
                         }
                     }
                 }
             }
         }
+        // Si no se encuentra la tabla, mostrar un mensaje de advertencia y devolver null
         JOptionPane.showMessageDialog(null, "No se ha encontrado la tabla.", "Error", JOptionPane.WARNING_MESSAGE);
         return null; // Si no se encuentra la tabla
     }
 
-    private JPanel getPanel2ByName(String name) {
+    /**
+     * Obtiene un panel de botones del panel de visualización mediante su nombre.
+     * 
+     * @param name Nombre del panel de botones que se busca.
+     * @return Panel de botones correspondiente al nombre especificado, o null si no se encuentra.
+     */
+    private JPanel getPanelBotonesByName(String name) {
+    	// Obtener todas las componentes (paneles) del displayPanel
         Component[] components = displayPanel.getComponents();
         for (Component component : components) {
             if (component instanceof JPanel) {
                 JPanel panel1 = (JPanel) component;
+                // Obtener todas las componentes (paneles) dentro del panel1
                 Component[] panel1Components = panel1.getComponents();
                 for (Component panel1Component : panel1Components) {
                     if (panel1Component instanceof JPanel) {
                         JPanel panel2 = (JPanel) panel1Component;
+                        // Verificar si el nombre del panel2 coincide con el especificado
                         if (panel2.getName() != null && panel2.getName().equals(name)) {
-                            return panel2;
+                        	// Devolver el panel de botones encontrado
+                        	return panel2;
                         }
                     }
                 }
             }
         }
-        return null; // Si no se encuentra el panel2
+        // Devolver null si no se encuentra el panel de botones
+        return null; 
     }
 
+    /**
+     * Guarda los cambios realizados en una tabla en la base de datos.
+     * 
+     * @param table Tabla que contiene los datos a guardar.
+     */
     private void guardarCambiosEnBD(JTable table) {
         // Obtener el ID del nombre de la tabla
         String id = table.getName();
+        
         // Construir el JSON de actualización a partir de los datos de la tabla
         JsonStringBuilder jsonUpdateBuilder = new JsonStringBuilder();
         Object columnValueObject;
 
-        int emptyFieldsCount = 0; // Contador para campos vacíos
+        // Contador para campos vacíos
+        int emptyFieldsCount = 0; 
 
         DefaultTableModel model = (DefaultTableModel) table.getModel();
-        for (int i = 1; i < model.getRowCount(); i++) { // Comenzar desde la segunda fila
+        // Comenzar desde la segunda fila (la primera es el id)
+        for (int i = 1; i < model.getRowCount(); i++) { 
             String clave = (String) model.getValueAt(i, 0);
             columnValueObject = model.getValueAt(i, 1);
             
             // Omitir la fila si la columna clave o valor están a null o cadena vacía
             if (clave == null || clave.isEmpty() || columnValueObject == null) {
-                emptyFieldsCount++; // Incrementar el contador de campos vacíos
+            	// Incrementar el contador de campos vacíos
+                emptyFieldsCount++; 
             } else {
                 // Agregar clave y valor al JSON
                 jsonUpdateBuilder.append(clave, columnValueObject);
@@ -614,7 +722,6 @@ public class VistaPrincipal extends JPanel {
         }
 
         // Actualizar en la base de datos
-        ProductsRepository pr = new ProductsRepository();
-        pr.replaceOneById(id, jsonUpdateBuilder.build(), collection);
+        controller.replaceOneById(id, jsonUpdateBuilder.build());
     }
 }
